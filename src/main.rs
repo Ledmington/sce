@@ -1,3 +1,5 @@
+mod node;
+mod parser;
 mod token;
 mod tokenizer;
 
@@ -14,5 +16,6 @@ fn main() {
     }
 
     let tokens: Vec<token::Token> = tokenizer::tokenize(&args[1]);
-    println!("{:#?}", tokens);
+    let root: node::Node = parser::parse(&tokens);
+    println!("{:#?}", root);
 }
