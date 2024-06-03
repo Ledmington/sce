@@ -6,6 +6,9 @@ use std::env;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
+    if args.len() == 1 {
+        panic!("Needed an expression.");
+    }
     if args.len() > 2 {
         println!("I don't need more than 1 argument. Ignoring the others.");
     }
