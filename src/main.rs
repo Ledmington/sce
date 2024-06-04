@@ -1,3 +1,4 @@
+mod engine;
 mod node;
 mod parser;
 mod token;
@@ -17,5 +18,14 @@ fn main() {
 
     let tokens: Vec<token::Token> = tokenizer::tokenize(&args[1]);
     let root: node::Node = parser::parse(&tokens);
-    println!("{:#?}", root);
+
+    println!("Input: {}", root);
+
+    let current: node::Node = engine::generalize(&root);
+    let mut next: node::Node = engine::simplify(&current);
+    while current != next {
+        println!("{}", current);
+        current = next;
+        next = engine::simplify(&current);
+    }
 }

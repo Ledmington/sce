@@ -16,7 +16,7 @@ fn parse_expression<'a>(tokens: &Vec<Token<'a>>, i: &mut usize) -> Option<Node<'
             if *i + 1 < tokens.len() && tokens[*i + 1] == Token::LeftBracket {
                 *i += 1;
                 match parse_bracketed_expression(tokens, i) {
-                    Node::Bracket(r) => Node::Function(y, r),
+                    Node::Bracket { expr } => Node::Function(y, expr),
                     _ => todo!(),
                 }
             } else {
