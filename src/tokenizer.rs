@@ -8,9 +8,9 @@ pub fn tokenize(input: &str) -> Vec<token::Token> {
         let ch: char = input.chars().nth(i).unwrap();
 
         if ch.is_ascii_digit() {
-            tokens.push(token::Token::IntegerLiteral(parse_number(input, &mut i)));
+            tokens.push(token::Token::IntegerLiteral(read_number(input, &mut i)));
         } else if ch.is_alphabetic() {
-            tokens.push(token::Token::Name(parse_name(input, &mut i)));
+            tokens.push(token::Token::Name(read_name(input, &mut i)));
         } else if ch == '+' {
             tokens.push(token::Token::Plus);
             i += 1;
@@ -40,7 +40,7 @@ pub fn tokenize(input: &str) -> Vec<token::Token> {
     tokens
 }
 
-fn parse_number(input: &str, i: &mut usize) -> i64 {
+fn read_number(input: &str, i: &mut usize) -> i64 {
     let mut x: i64 = 0;
 
     while *i < input.len() && input.chars().nth(*i).unwrap().is_ascii_digit() {
@@ -51,7 +51,7 @@ fn parse_number(input: &str, i: &mut usize) -> i64 {
     x
 }
 
-fn parse_name<'a>(input: &'a str, i: &mut usize) -> &'a str {
+fn read_name<'a>(input: &'a str, i: &mut usize) -> &'a str {
     let start: usize = *i;
     let mut end: usize = *i;
 
@@ -73,6 +73,6 @@ mod tests {
     #[test_case("12", 12)]
     #[test_case("123", 123)]
     fn number_parsing(input: &str, output: i64) {
-        assert_eq!(parse_number(input, &mut 0), output);
+        assert_eq!(read_number(input, &mut 0), output);
     }
 }
