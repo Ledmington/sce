@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq)]
-pub enum Token<'a> {
+pub enum Token {
     Plus,
     Minus,
     Asterisk,
@@ -7,6 +7,6 @@ pub enum Token<'a> {
     Circumflex,
     LeftBracket,
     RightBracket,
-    Name(&'a str),
+    Name(String),
     IntegerLiteral(i64),
 }

@@ -10,7 +10,7 @@ pub fn tokenize(input: &str) -> Vec<token::Token> {
         if ch.is_ascii_digit() {
             tokens.push(token::Token::IntegerLiteral(read_number(input, &mut i)));
         } else if ch.is_alphabetic() {
-            tokens.push(token::Token::Name(read_name(input, &mut i)));
+            tokens.push(token::Token::Name(read_name(input, &mut i).to_owned()));
         } else if ch == '+' {
             tokens.push(token::Token::Plus);
             i += 1;

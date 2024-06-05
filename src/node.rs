@@ -3,31 +3,38 @@ use std::fmt;
 #[derive(Debug, PartialEq)]
 pub enum Node<'a> {
     Bracket {
-        expr: Box<Node<'a>>,
+        expr: &'a Node<'a>,
     },
     Plus {
-        lhs: Box<Node<'a>>,
-        rhs: Box<Node<'a>>,
+        lhs: &'a Node<'a>,
+        rhs: &'a Node<'a>,
     },
     Minus {
-        lhs: Box<Node<'a>>,
-        rhs: Box<Node<'a>>,
+        lhs: &'a Node<'a>,
+        rhs: &'a Node<'a>,
     },
     Multiply {
-        lhs: Box<Node<'a>>,
-        rhs: Box<Node<'a>>,
+        lhs: &'a Node<'a>,
+        rhs: &'a Node<'a>,
     },
     Divide {
-        lhs: Box<Node<'a>>,
-        rhs: Box<Node<'a>>,
+        lhs: &'a Node<'a>,
+        rhs: &'a Node<'a>,
     },
     Power {
-        lhs: Box<Node<'a>>,
-        rhs: Box<Node<'a>>,
+        lhs: &'a Node<'a>,
+        rhs: &'a Node<'a>,
     },
-    Constant(i64),
-    Variable(&'a str),
-    Function(&'a str, Box<Node<'a>>),
+    Constant {
+        value: i64,
+    },
+    Variable {
+        name: String,
+    },
+    Function {
+        name: String,
+        expr: &'a Node<'a>,
+    },
 }
 
 impl fmt::Display for Node<'_> {
@@ -35,13 +42,13 @@ impl fmt::Display for Node<'_> {
         match self {
             Node::Bracket { expr } => write!(f, "({})", expr),
             Node::Plus { lhs, rhs } => write!(f, "{}+{}", lhs, rhs),
-            Node::Minus { lhs, rhs } => write!(f, "{}+{}", lhs, rhs),
-            Node::Multiply { lhs, rhs } => write!(f, "{}+{}", lhs, rhs),
-            Node::Divide { lhs, rhs } => write!(f, "{}+{}", lhs, rhs),
-            Node::Power { lhs, rhs } => write!(f, "{}+{}", lhs, rhs),
-            Node::Constant(x) => write!(f, "{}", x),
-            Node::Variable(x) => write!(f, "{}", x),
-            Node::Function(n, x) => write!(f, "{}({})", n, x),
+            Node::Minus { lhs, rhs } => write!(f, "{}-{}", lhs, rhs),
+            Node::Multiply { lhs, rhs } => write!(f, "{}*{}", lhs, rhs),
+            Node::Divide { lhs, rhs } => write!(f, "{}/{}", lhs, rhs),
+            Node::Power { lhs, rhs } => write!(f, "{}^{}", lhs, rhs),
+            Node::Constant { value } => write!(f, "{}", value),
+            Node::Variable { name } => write!(f, "{}", name),
+            Node::Function { name, expr } => write!(f, "{}({})", name, expr),
         }
     }
 }
