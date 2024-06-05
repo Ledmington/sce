@@ -17,15 +17,15 @@ fn main() {
     }
 
     let tokens: Vec<token::Token> = tokenizer::tokenize(&args[1]);
-    let root: &node::Node = parser::parse(&tokens);
+    let root: node::Node = parser::parse(&tokens);
 
     println!("Input: {}", root);
 
-    let mut current: &node::Node = &engine::generalize(&root);
-    let mut next: &node::Node = &engine::simplify(&current);
+    let mut current: node::Node = engine::generalize(&root);
+    let mut next: node::Node = engine::simplify(&current);
     while current != next {
         println!("{}", current);
         current = next;
-        next = &engine::simplify(&current);
+        next = engine::simplify(&current);
     }
 }
