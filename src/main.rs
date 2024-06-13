@@ -21,8 +21,8 @@ fn main() {
 
     println!("Input: {}", root);
 
-    let mut current: node::Node = engine::generalize(&root);
-    let mut next: node::Node = engine::simplify(&current);
+    let mut current: &node::Node = &root;
+    let mut next: &node::Node = engine::simplify(&current);
     while current != next {
         println!("{}", current);
         current = next;

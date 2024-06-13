@@ -1,11 +1,11 @@
 use crate::node::Node;
 use crate::token::Token;
 
-pub fn parse<'a>(tokens: &Vec<Token>) -> Node {
+pub fn parse(tokens: &Vec<Token>) -> Node {
     parse_expression(tokens, &mut 0).unwrap()
 }
 
-fn parse_expression<'a>(tokens: &Vec<Token>, i: &mut usize) -> Option<Node> {
+fn parse_expression(tokens: &Vec<Token>, i: &mut usize) -> Option<Node> {
     if *i >= tokens.len() {
         return None;
     }
