@@ -1,1 +1,6 @@
-/target
+.vscode/
+.idea/
+.gradle/
+**/bin
+**/build
+
