@@ -31,7 +31,7 @@ import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.tokens.Tokenizer;
 
-public class TestEngine {
+final class TestEngine {
 
     private static Stream<Arguments> correctSimplifications() {
         return Stream.of(
@@ -51,6 +51,10 @@ public class TestEngine {
             current = next;
             next = Engine.simplify(current);
         }
-        assertEquals(expected, next);
+        final Node finalNext = next;
+        assertEquals(
+                expected,
+                next,
+                () -> String.format("Expected '%s' but was '%s'", expected.toExpression(), finalNext.toExpression()));
     }
 }

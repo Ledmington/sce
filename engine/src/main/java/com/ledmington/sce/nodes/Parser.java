@@ -30,9 +30,10 @@ public final class Parser {
 
     private Parser() {}
 
-    public static Node parse(final Token[] input) {
+    public static Node parse(final Token... input) {
         final List<Object> partialAST = new ArrayList<>(Arrays.asList(input));
 
+        // Convert all IntegerLiterals into ConstantNodes (maybe merge those classes?)
         for (int i = 0; i < partialAST.size(); i++) {
             if (partialAST.get(i) instanceof IntegerLiteral il) {
                 partialAST.set(i, new ConstantNode(il.value()));
@@ -41,6 +42,8 @@ public final class Parser {
 
         while (partialAST.size() > 1) {
             final int startSize = partialAST.size();
+
+            // Convert all multiplications and divisions first
             for (int i = 0; i < partialAST.size(); i++) {
                 if (i < partialAST.size() - 2
                         && partialAST.get(i) instanceof Node ln
@@ -51,6 +54,8 @@ public final class Parser {
                     partialAST.set(i, new MultiplyNode(ln, rn));
                 }
             }
+
+            // then convert all the other stuff
             for (int i = 0; i < partialAST.size(); i++) {
                 if (i < partialAST.size() - 2
                         && partialAST.get(i) instanceof Node ln

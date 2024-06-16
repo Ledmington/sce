@@ -22,6 +22,6 @@ import java.math.BigInteger;
 public record ConstantNode(BigInteger value) implements Node {
     @Override
     public String toExpression() {
-        return "" + value;
+        return value.toString();
     }
 }

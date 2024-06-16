@@ -8,7 +8,7 @@
         <exclude name="DoNotTerminateVM" />
     </rule>
     <rule ref="category/java/bestpractices.xml">
-        <exclude name="GuardLogStatement" />
+        <exclude name="SystemPrintln" />
     </rule>
     <rule ref="category/java/performance.xml"></rule>
 </ruleset>

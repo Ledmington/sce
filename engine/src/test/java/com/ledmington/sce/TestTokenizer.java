@@ -20,6 +20,7 @@ package com.ledmington.sce;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,7 +32,7 @@ import com.ledmington.sce.tokens.Symbols;
 import com.ledmington.sce.tokens.Token;
 import com.ledmington.sce.tokens.Tokenizer;
 
-public class TestTokenizer {
+final class TestTokenizer {
 
     private static Stream<Arguments> correctTokens() {
         return Stream.of(
@@ -48,7 +49,12 @@ public class TestTokenizer {
 
     @ParameterizedTest
     @MethodSource("correctTokens")
-    void tokenizing(final String input, final Token expected) {
-        assertArrayEquals(new Token[] {expected}, Tokenizer.tokenize(input));
+    void tokenizing(final String input, final Token t) {
+        final Token[] expected = new Token[] {t};
+        final Token[] actual = Tokenizer.tokenize(input);
+        assertArrayEquals(
+                expected,
+                actual,
+                () -> String.format("Expected '%s' but was '%s'", Arrays.toString(expected), Arrays.toString(actual)));
     }
 }

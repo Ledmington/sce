@@ -22,13 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Tokenizer {
+
+    private static char[] v;
+    private static int i;
+
     private Tokenizer() {}
 
     public static Token[] tokenize(final String input) {
         final List<Token> tokens = new ArrayList<>();
-        int i = 0;
-        while (i < input.length()) {
-            final char ch = input.charAt(i);
+        v = input.toCharArray();
+        i = 0;
+        while (i < v.length) {
+            final char ch = v[i];
             switch (ch) {
                 case '(':
                     tokens.add(Symbols.LEFT_BRACKET);
@@ -52,17 +57,21 @@ public final class Tokenizer {
                     break;
                 default:
                     if (Character.isDigit(ch)) {
-                        final StringBuilder sb = new StringBuilder(10);
-                        while (i < input.length() && Character.isDigit(input.charAt(i))) {
-                            sb.append(input.charAt(i));
-                            i++;
-                        }
-                        tokens.add(new IntegerLiteral(new BigInteger(sb.toString(), 10)));
+                        tokens.add(readIntegerLiteral());
                     } else {
                         throw new Error(String.format("Unknown character '%c'", ch));
                     }
             }
         }
         return tokens.toArray(new Token[0]);
+    }
+
+    private static IntegerLiteral readIntegerLiteral() {
+        final StringBuilder sb = new StringBuilder(10);
+        while (i < v.length && Character.isDigit(v[i])) {
+            sb.append(v[i]);
+            i++;
+        }
+        return new IntegerLiteral(new BigInteger(sb.toString(), 10));
     }
 }

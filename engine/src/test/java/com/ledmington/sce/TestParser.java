@@ -35,7 +35,7 @@ import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.nodes.PlusNode;
 import com.ledmington.sce.tokens.Tokenizer;
 
-public class TestParser {
+final class TestParser {
 
     private static Stream<Arguments> correctNodes() {
         return Stream.of(
@@ -50,6 +50,7 @@ public class TestParser {
     @ParameterizedTest
     @MethodSource("correctNodes")
     void parsing(final String input, final Node expected) {
-        assertEquals(expected, Parser.parse(Tokenizer.tokenize(input)));
+        final Node actual = Parser.parse(Tokenizer.tokenize(input));
+        assertEquals(expected, actual, () -> String.format("Expected '%s' but was '%s'", expected, actual));
     }
 }
