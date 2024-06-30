@@ -26,7 +26,7 @@ import com.ledmington.sce.tokens.Tokenizer;
 public final class Main {
 
     public static void main(final String[] args) {
-        final String input = "1+(2*3)";
+        final String input = String.join(" ", args);
         final Token[] tokens = Tokenizer.tokenize(input);
         Node current = Parser.parse(tokens);
         System.out.println(current.toExpression());

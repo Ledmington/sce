@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.ledmington.sce.nodes.ConstantNode;
+import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.tokens.Tokenizer;
@@ -39,7 +40,17 @@ final class TestEngine {
                 Arguments.of("(1)", new ConstantNode(BigInteger.ONE)),
                 Arguments.of("1+2", new ConstantNode(BigInteger.valueOf(3))),
                 Arguments.of("1-2", new ConstantNode(BigInteger.valueOf(-1))),
-                Arguments.of("1*2", new ConstantNode(BigInteger.valueOf(2))));
+                Arguments.of("1*2", new ConstantNode(BigInteger.valueOf(2))),
+                // fractions are not resolved
+                Arguments.of(
+                        "1/2",
+                        new FractionNode(
+                                new ConstantNode(BigInteger.valueOf(1)), new ConstantNode(BigInteger.valueOf(2)))),
+                // fractions can be simplified
+                Arguments.of(
+                        "6/8",
+                        new FractionNode(
+                                new ConstantNode(BigInteger.valueOf(3)), new ConstantNode(BigInteger.valueOf(4)))));
     }
 
     @ParameterizedTest

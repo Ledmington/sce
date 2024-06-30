@@ -55,6 +55,10 @@ public final class Tokenizer {
                     tokens.add(Symbols.ASTERISK);
                     i++;
                     break;
+                case '/':
+                    tokens.add(Symbols.SLASH);
+                    i++;
+                    break;
                 default:
                     if (Character.isDigit(ch)) {
                         tokens.add(readIntegerLiteral());

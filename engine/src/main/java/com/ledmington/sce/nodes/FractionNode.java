@@ -15,13 +15,11 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.ledmington.sce.tokens;
+package com.ledmington.sce.nodes;
 
-public enum Symbols implements Token {
-    LEFT_BRACKET,
-    RIGHT_BRACKET,
-    PLUS,
-    MINUS,
-    ASTERISK,
-    SLASH
+public record FractionNode(Node numerator, Node denominator) implements Node {
+    @Override
+    public String toExpression() {
+        return numerator.toExpression() + "/" + denominator.toExpression();
+    }
 }

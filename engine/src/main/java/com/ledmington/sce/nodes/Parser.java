@@ -52,6 +52,13 @@ public final class Parser {
                     partialAST.remove(i);
                     partialAST.remove(i);
                     partialAST.set(i, new MultiplyNode(ln, rn));
+                } else if (i < partialAST.size() - 2
+                        && partialAST.get(i) instanceof Node ln
+                        && partialAST.get(i + 1) == Symbols.SLASH
+                        && partialAST.get(i + 2) instanceof Node rn) {
+                    partialAST.remove(i);
+                    partialAST.remove(i);
+                    partialAST.set(i, new FractionNode(ln, rn));
                 }
             }
 

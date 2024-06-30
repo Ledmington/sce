@@ -41,6 +41,7 @@ final class TestTokenizer {
                 Arguments.of("+", Symbols.PLUS),
                 Arguments.of("-", Symbols.MINUS),
                 Arguments.of("*", Symbols.ASTERISK),
+                Arguments.of("/", Symbols.SLASH),
                 Arguments.of("0", new IntegerLiteral(BigInteger.ZERO)),
                 Arguments.of("1", new IntegerLiteral(BigInteger.ONE)),
                 Arguments.of("2", new IntegerLiteral(BigInteger.TWO)),

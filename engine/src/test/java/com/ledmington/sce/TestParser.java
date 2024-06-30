@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.ledmington.sce.nodes.BracketNode;
 import com.ledmington.sce.nodes.ConstantNode;
+import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.MinusNode;
 import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
@@ -44,7 +45,9 @@ final class TestParser {
                 Arguments.of("1+2", new PlusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
                 Arguments.of("1-2", new MinusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
                 Arguments.of(
-                        "1*2", new MultiplyNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))));
+                        "1*2", new MultiplyNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
+                Arguments.of(
+                        "1/2", new FractionNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))));
     }
 
     @ParameterizedTest

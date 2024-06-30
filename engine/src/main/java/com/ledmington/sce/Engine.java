@@ -17,8 +17,11 @@
 */
 package com.ledmington.sce;
 
+import java.math.BigInteger;
+
 import com.ledmington.sce.nodes.BracketNode;
 import com.ledmington.sce.nodes.ConstantNode;
+import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.MinusNode;
 import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
@@ -60,6 +63,17 @@ public final class Engine {
                     return new ConstantNode(lc.value().multiply(rc.value()));
                 } else {
                     return new MultiplyNode(simplify(mn.lhs()), simplify(mn.rhs()));
+                }
+            }
+            case FractionNode fn -> {
+                // 6/8 -> 3/4
+                if (fn.numerator() instanceof ConstantNode num && fn.denominator() instanceof ConstantNode den) {
+                    final BigInteger mcd = num.value().gcd(den.value());
+                    return new FractionNode(
+                            new ConstantNode(num.value().divide(mcd)),
+                            new ConstantNode(den.value().divide(mcd)));
+                } else {
+                    return new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
                 }
             }
             case null -> throw new NullPointerException();
