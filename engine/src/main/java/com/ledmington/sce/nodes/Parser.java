@@ -17,6 +17,7 @@
 */
 package com.ledmington.sce.nodes;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -87,6 +88,12 @@ public final class Parser {
                     partialAST.remove(i);
                     partialAST.remove(i);
                     partialAST.set(i, new BracketNode(n));
+                }
+                if (i < partialAST.size() - 1
+                        && partialAST.get(i) == Symbols.MINUS
+                        && partialAST.get(i + 1) instanceof ConstantNode cn) {
+                    partialAST.remove(i);
+                    partialAST.set(i, new ConstantNode(cn.value().multiply(new BigInteger("-1"))));
                 }
             }
 

@@ -41,6 +41,7 @@ final class TestParser {
     private static Stream<Arguments> correctNodes() {
         return Stream.of(
                 Arguments.of("1", new ConstantNode(BigInteger.ONE)),
+                Arguments.of("-1", new ConstantNode(new BigInteger("-1"))),
                 Arguments.of("(1)", new BracketNode(new ConstantNode(BigInteger.ONE))),
                 Arguments.of("1+2", new PlusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
                 Arguments.of("1-2", new MinusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
