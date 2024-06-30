@@ -22,4 +22,9 @@ public record BracketNode(Node inner) implements Node {
     public String toExpression() {
         return "(" + inner.toExpression() + ")";
     }
+
+    @Override
+    public String toLatex() {
+        return "(" + inner.toLatex() + ")";
+    }
 }

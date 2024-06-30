@@ -22,4 +22,9 @@ public record MinusNode(Node lhs, Node rhs) implements Node {
     public String toExpression() {
         return lhs.toExpression() + "-" + rhs.toExpression();
     }
+
+    @Override
+    public String toLatex() {
+        return lhs.toLatex() + "-" + rhs.toLatex();
+    }
 }

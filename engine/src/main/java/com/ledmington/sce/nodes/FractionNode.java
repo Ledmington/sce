@@ -22,4 +22,9 @@ public record FractionNode(Node numerator, Node denominator) implements Node {
     public String toExpression() {
         return numerator.toExpression() + "/" + denominator.toExpression();
     }
+
+    @Override
+    public String toLatex() {
+        return "\\frac{" + numerator.toLatex() + "}{" + denominator.toLatex() + "}";
+    }
 }

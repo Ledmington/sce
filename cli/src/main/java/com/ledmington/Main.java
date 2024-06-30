@@ -24,18 +24,22 @@ import com.ledmington.sce.tokens.Token;
 import com.ledmington.sce.tokens.Tokenizer;
 
 public final class Main {
-
     public static void main(final String[] args) {
         final String input = String.join(" ", args);
         final Token[] tokens = Tokenizer.tokenize(input);
         Node current = Parser.parse(tokens);
-        System.out.println(current.toExpression());
+        System.out.printf("Input: %s\n", current.toExpression());
         Node next = Engine.simplify(current);
-        System.out.println(next.toExpression());
+
+        int iteration = 0;
         while (!current.equals(next)) {
+            System.out.printf(" %2d: %s\n", iteration, next.toExpression());
             current = next;
             next = Engine.simplify(current);
-            System.out.println(next.toExpression());
+            iteration++;
         }
+
+        System.out.printf("Final result: %s\n", next.toExpression());
+        System.out.printf("Final result (LaTeX): %s\n", next.toLatex());
     }
 }

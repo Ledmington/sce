@@ -19,4 +19,6 @@ package com.ledmington.sce.nodes;
 
 public interface Node {
     String toExpression();
+
+    String toLatex();
 }

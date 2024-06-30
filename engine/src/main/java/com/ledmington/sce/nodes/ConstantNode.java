@@ -24,4 +24,9 @@ public record ConstantNode(BigInteger value) implements Node {
     public String toExpression() {
         return value.toString();
     }
+
+    @Override
+    public String toLatex() {
+        return value.toString();
+    }
 }

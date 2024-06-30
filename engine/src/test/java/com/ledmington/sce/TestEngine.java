@@ -41,6 +41,8 @@ final class TestEngine {
                 Arguments.of("1+2", new ConstantNode(BigInteger.valueOf(3))),
                 Arguments.of("1-2", new ConstantNode(BigInteger.valueOf(-1))),
                 Arguments.of("1*2", new ConstantNode(BigInteger.valueOf(2))),
+                Arguments.of("2+3*4", new ConstantNode(BigInteger.valueOf(14))),
+                Arguments.of("(2+3)*4", new ConstantNode(BigInteger.valueOf(20))),
                 // fractions are not resolved
                 Arguments.of(
                         "1/2",
