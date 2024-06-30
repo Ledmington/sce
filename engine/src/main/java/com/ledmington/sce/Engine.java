@@ -69,6 +69,12 @@ public final class Engine {
                 // 6/8 -> 3/4
                 if (fn.numerator() instanceof ConstantNode num && fn.denominator() instanceof ConstantNode den) {
                     final BigInteger mcd = num.value().gcd(den.value());
+                    if (num.value().compareTo(BigInteger.ZERO) < 0
+                            && den.value().compareTo(BigInteger.ZERO) < 0) {
+                        return new FractionNode(
+                                new ConstantNode(num.value().divide(mcd).abs()),
+                                new ConstantNode(den.value().divide(mcd).abs()));
+                    }
                     return new FractionNode(
                             new ConstantNode(num.value().divide(mcd)),
                             new ConstantNode(den.value().divide(mcd)));

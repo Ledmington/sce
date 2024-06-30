@@ -50,6 +50,10 @@ final class TestEngine {
                                 new ConstantNode(BigInteger.valueOf(1)), new ConstantNode(BigInteger.valueOf(2)))),
                 // fractions can be simplified
                 Arguments.of(
+                        "-2/-3",
+                        new FractionNode(
+                                new ConstantNode(BigInteger.valueOf(2)), new ConstantNode(BigInteger.valueOf(3)))),
+                Arguments.of(
                         "6/8",
                         new FractionNode(
                                 new ConstantNode(BigInteger.valueOf(3)), new ConstantNode(BigInteger.valueOf(4)))));
