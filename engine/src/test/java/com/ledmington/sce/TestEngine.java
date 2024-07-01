@@ -30,38 +30,58 @@ import com.ledmington.sce.nodes.ConstantNode;
 import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
+import com.ledmington.sce.nodes.PlusNode;
 import com.ledmington.sce.tokens.Tokenizer;
 
 final class TestEngine {
 
     private static Stream<Arguments> correctSimplifications() {
+        final ConstantNode one = new ConstantNode(BigInteger.ONE);
+        final ConstantNode two = new ConstantNode(BigInteger.TWO);
+        final ConstantNode three = new ConstantNode(BigInteger.valueOf(3));
+        final ConstantNode four = new ConstantNode(BigInteger.valueOf(4));
+        final ConstantNode five = new ConstantNode(BigInteger.valueOf(5));
+        final ConstantNode six = new ConstantNode(BigInteger.valueOf(6));
+        final FractionNode oneHalf = new FractionNode(one, two);
+        final FractionNode twoThirds = new FractionNode(two, three);
+        final FractionNode sevenThirds = new FractionNode(new ConstantNode(BigInteger.valueOf(7)), three);
         return Stream.of(
-                Arguments.of("1", new ConstantNode(BigInteger.ONE)),
-                Arguments.of("(1)", new ConstantNode(BigInteger.ONE)),
-                Arguments.of("1+2", new ConstantNode(BigInteger.valueOf(3))),
+                Arguments.of("1", one),
+                Arguments.of("(1)", one),
+                Arguments.of("1+2", three),
                 Arguments.of("1-2", new ConstantNode(BigInteger.valueOf(-1))),
-                Arguments.of("1*2", new ConstantNode(BigInteger.valueOf(2))),
+                Arguments.of("1*2", two),
                 Arguments.of("2+3*4", new ConstantNode(BigInteger.valueOf(14))),
                 Arguments.of("(2+3)*4", new ConstantNode(BigInteger.valueOf(20))),
                 // fractions are not resolved
-                Arguments.of(
-                        "1/2",
-                        new FractionNode(
-                                new ConstantNode(BigInteger.valueOf(1)), new ConstantNode(BigInteger.valueOf(2)))),
+                Arguments.of("1/2", oneHalf),
+                Arguments.of("(1/2)", oneHalf),
                 // fractions can be simplified
-                Arguments.of(
-                        "-2/-3",
-                        new FractionNode(
-                                new ConstantNode(BigInteger.valueOf(2)), new ConstantNode(BigInteger.valueOf(3)))),
-                Arguments.of(
-                        "6/8",
-                        new FractionNode(
-                                new ConstantNode(BigInteger.valueOf(3)), new ConstantNode(BigInteger.valueOf(4)))),
+                Arguments.of("-2/-3", twoThirds),
+                Arguments.of("6/8", new FractionNode(three, four)),
                 // "by convention", we choose to always have the sign of a fraction at the numerator
+                Arguments.of("2/-3", new FractionNode(new ConstantNode(BigInteger.valueOf(-2)), three)),
+                // 1/2+1/3 = 5/6
+                Arguments.of("1/2+1/3", new FractionNode(five, six)),
+                // 2+1/3 = 7/3
+                Arguments.of("2+1/3", sevenThirds),
+                // 1/3+2 = 7/3
+                Arguments.of("1/3+2", sevenThirds),
+                // 5/6-1/3 = 1/2
+                Arguments.of("5/6-1/3", oneHalf),
+                // 2/3*4/5 = 8/15
                 Arguments.of(
-                        "2/-3",
+                        "2/3*4/5",
                         new FractionNode(
-                                new ConstantNode(BigInteger.valueOf(-2)), new ConstantNode(BigInteger.valueOf(3)))));
+                                new ConstantNode(BigInteger.valueOf(8)), new ConstantNode(BigInteger.valueOf(15)))),
+                // (2/3)/4 = 1/6
+                Arguments.of("(2/3)/4", new FractionNode(one, six)),
+                // 2/(3/4) = 8/3
+                Arguments.of("2/(3/4)", new FractionNode(new ConstantNode(BigInteger.valueOf(8)), three)),
+                // (2/3)/(4/5) = 5/6
+                Arguments.of("(2/3)/(4/5)", new FractionNode(five, six)),
+                // 1+(2/3)+2 = 3+(2/3)
+                Arguments.of("1+(2/3)+2", new PlusNode(three, twoThirds)));
     }
 
     @ParameterizedTest

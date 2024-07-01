@@ -37,22 +37,50 @@ public final class Engine {
                 // (2) -> 2
                 if (bn.inner() instanceof ConstantNode cn) {
                     yield cn;
+                } else if (bn.inner() instanceof FractionNode fn) {
+                    yield new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
                 } else {
                     yield new BracketNode(simplify(bn.inner()));
                 }
             }
             case PlusNode pn -> {
-                // 1+2 -> 3
-                if (pn.lhs() instanceof ConstantNode lc && pn.rhs() instanceof ConstantNode rc) {
-                    yield new ConstantNode(lc.value().add(rc.value()));
-                } else {
-                    yield new PlusNode(simplify(pn.lhs()), simplify(pn.rhs()));
-                }
+				switch (pn.lhs()) {
+					case ConstantNode lc when pn.rhs() instanceof ConstantNode rc -> {
+						yield new ConstantNode(lc.value().add(rc.value()));
+					}
+					case ConstantNode left when pn.rhs() instanceof FractionNode right -> {
+						yield new FractionNode(
+								simplify(new PlusNode(new MultiplyNode(left, right.denominator()), right.numerator())),
+								simplify(right.denominator()));
+					}
+                    case FractionNode left when pn.rhs() instanceof ConstantNode right -> {
+                        yield new FractionNode(
+                                simplify(new PlusNode(left.numerator(), new MultiplyNode(right,left.denominator()))),
+                                simplify(left.denominator())
+                        );
+                    }
+					case FractionNode left when pn.rhs() instanceof FractionNode right -> {
+						yield new FractionNode(
+								simplify(new PlusNode(
+										new MultiplyNode(left.numerator(), right.denominator()),
+										new MultiplyNode(right.numerator(), left.denominator()))),
+								simplify(new MultiplyNode(left.denominator(), right.denominator())));
+					}
+					case null, default -> {
+						yield new PlusNode(simplify(pn.lhs()), simplify(pn.rhs()));
+					}
+				}
             }
             case MinusNode mn -> {
                 // 3-2 -> 1
                 if (mn.lhs() instanceof ConstantNode lc && mn.rhs() instanceof ConstantNode rc) {
                     yield new ConstantNode(lc.value().subtract(rc.value()));
+                } else if (mn.lhs() instanceof FractionNode left && mn.rhs() instanceof FractionNode right) {
+                    yield new FractionNode(
+                            simplify(new MinusNode(
+                                    new MultiplyNode(left.numerator(), right.denominator()),
+                                    new MultiplyNode(right.numerator(), left.denominator()))),
+                            simplify(new MultiplyNode(left.denominator(), right.denominator())));
                 } else {
                     yield new MinusNode(simplify(mn.lhs()), simplify(mn.rhs()));
                 }
@@ -61,12 +89,28 @@ public final class Engine {
                 // 2*3 -> 6
                 if (mn.lhs() instanceof ConstantNode lc && mn.rhs() instanceof ConstantNode rc) {
                     yield new ConstantNode(lc.value().multiply(rc.value()));
+                } else if (mn.lhs() instanceof FractionNode left && mn.rhs() instanceof FractionNode right) {
+                    yield new FractionNode(
+                            simplify(new MultiplyNode(left.numerator(), right.numerator())),
+                            simplify(new MultiplyNode(left.denominator(), right.denominator())));
                 } else {
                     yield new MultiplyNode(simplify(mn.lhs()), simplify(mn.rhs()));
                 }
             }
             case FractionNode fn -> {
-                // 6/8 -> 3/4
+                if (fn.numerator() instanceof FractionNode num && fn.denominator() instanceof ConstantNode cn) {
+                    yield new FractionNode(
+                            simplify(num.numerator()), simplify(new MultiplyNode(num.denominator(), cn)));
+                }
+                if (fn.numerator() instanceof ConstantNode cn && fn.denominator() instanceof FractionNode den) {
+                    yield new FractionNode(
+                            simplify(new MultiplyNode(cn, den.denominator())), simplify(den.numerator()));
+                }
+                if (fn.numerator() instanceof FractionNode num && fn.denominator() instanceof FractionNode den) {
+                    yield new FractionNode(
+                            simplify(new MultiplyNode(num.numerator(), den.denominator())),
+                            simplify(new MultiplyNode(num.denominator(), den.numerator())));
+                }
                 if (fn.numerator() instanceof ConstantNode num && fn.denominator() instanceof ConstantNode den) {
                     final BigInteger mcd = num.value().gcd(den.value());
                     final boolean isNumeratorNegative = num.value().compareTo(BigInteger.ZERO) < 0;
