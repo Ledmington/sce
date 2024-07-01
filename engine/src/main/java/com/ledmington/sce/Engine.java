@@ -32,60 +32,64 @@ public final class Engine {
     private Engine() {}
 
     public static Node simplify(final Node root) {
-        switch (root) {
+        return switch (root) {
             case BracketNode bn -> {
                 // (2) -> 2
                 if (bn.inner() instanceof ConstantNode cn) {
-                    return cn;
+                    yield cn;
                 } else {
-                    return new BracketNode(simplify(bn.inner()));
+                    yield new BracketNode(simplify(bn.inner()));
                 }
             }
             case PlusNode pn -> {
                 // 1+2 -> 3
                 if (pn.lhs() instanceof ConstantNode lc && pn.rhs() instanceof ConstantNode rc) {
-                    return new ConstantNode(lc.value().add(rc.value()));
+                    yield new ConstantNode(lc.value().add(rc.value()));
                 } else {
-                    return new PlusNode(simplify(pn.lhs()), simplify(pn.rhs()));
+                    yield new PlusNode(simplify(pn.lhs()), simplify(pn.rhs()));
                 }
             }
             case MinusNode mn -> {
                 // 3-2 -> 1
                 if (mn.lhs() instanceof ConstantNode lc && mn.rhs() instanceof ConstantNode rc) {
-                    return new ConstantNode(lc.value().subtract(rc.value()));
+                    yield new ConstantNode(lc.value().subtract(rc.value()));
                 } else {
-                    return new MinusNode(simplify(mn.lhs()), simplify(mn.rhs()));
+                    yield new MinusNode(simplify(mn.lhs()), simplify(mn.rhs()));
                 }
             }
             case MultiplyNode mn -> {
                 // 2*3 -> 6
                 if (mn.lhs() instanceof ConstantNode lc && mn.rhs() instanceof ConstantNode rc) {
-                    return new ConstantNode(lc.value().multiply(rc.value()));
+                    yield new ConstantNode(lc.value().multiply(rc.value()));
                 } else {
-                    return new MultiplyNode(simplify(mn.lhs()), simplify(mn.rhs()));
+                    yield new MultiplyNode(simplify(mn.lhs()), simplify(mn.rhs()));
                 }
             }
             case FractionNode fn -> {
                 // 6/8 -> 3/4
                 if (fn.numerator() instanceof ConstantNode num && fn.denominator() instanceof ConstantNode den) {
                     final BigInteger mcd = num.value().gcd(den.value());
-                    if (num.value().compareTo(BigInteger.ZERO) < 0
-                            && den.value().compareTo(BigInteger.ZERO) < 0) {
-                        return new FractionNode(
-                                new ConstantNode(num.value().divide(mcd).abs()),
-                                new ConstantNode(den.value().divide(mcd).abs()));
+                    final boolean isNumeratorNegative = num.value().compareTo(BigInteger.ZERO) < 0;
+                    final boolean isDenominatorNegative = den.value().compareTo(BigInteger.ZERO) < 0;
+                    final BigInteger newNumerator = num.value().divide(mcd).abs();
+                    final BigInteger newDenominator = den.value().divide(mcd).abs();
+
+                    if (isNumeratorNegative && isDenominatorNegative) {
+                        yield new FractionNode(new ConstantNode(newNumerator), new ConstantNode(newDenominator));
                     }
-                    return new FractionNode(
-                            new ConstantNode(num.value().divide(mcd)),
-                            new ConstantNode(den.value().divide(mcd)));
-                } else {
-                    return new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
+
+                    yield new FractionNode(
+                            new ConstantNode(
+                                    (isNumeratorNegative || isDenominatorNegative)
+                                            ? newNumerator.multiply(new BigInteger("-1"))
+                                            : newNumerator),
+                            new ConstantNode(newDenominator));
                 }
+
+                yield new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
             }
             case null -> throw new NullPointerException();
-            default -> {
-                return root;
-            }
-        }
+            default -> root;
+        };
     }
 }

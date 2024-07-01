@@ -56,7 +56,12 @@ final class TestEngine {
                 Arguments.of(
                         "6/8",
                         new FractionNode(
-                                new ConstantNode(BigInteger.valueOf(3)), new ConstantNode(BigInteger.valueOf(4)))));
+                                new ConstantNode(BigInteger.valueOf(3)), new ConstantNode(BigInteger.valueOf(4)))),
+                // "by convention", we choose to always have the sign of a fraction at the numerator
+                Arguments.of(
+                        "2/-3",
+                        new FractionNode(
+                                new ConstantNode(BigInteger.valueOf(-2)), new ConstantNode(BigInteger.valueOf(3)))));
     }
 
     @ParameterizedTest
