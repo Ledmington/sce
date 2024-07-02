@@ -191,6 +191,7 @@ spotless {
 }
 
 allprojects.each {
-    it.tasks.compileJava.dependsOn(spotlessApply)
+    // automatic formatting disabled until this gets fixed: https://github.com/palantir/palantir-java-format/issues/952
+    //it.tasks.compileJava.dependsOn(spotlessApply)
     it.tasks.build.dependsOn(it.tasks.javadoc)
 }
