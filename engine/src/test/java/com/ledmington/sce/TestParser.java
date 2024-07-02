@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.math.BigInteger;
 import java.util.stream.Stream;
 
+import com.ledmington.sce.nodes.ConstantNode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.ledmington.sce.nodes.BracketNode;
-import com.ledmington.sce.nodes.ConstantNode;
 import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.MinusNode;
 import com.ledmington.sce.nodes.MultiplyNode;
@@ -39,16 +39,18 @@ import com.ledmington.sce.tokens.Tokenizer;
 final class TestParser {
 
     private static Stream<Arguments> correctNodes() {
+        final ConstantNode one=ConstantNode.of(1);
+        final ConstantNode two=ConstantNode.of(2);
         return Stream.of(
-                Arguments.of("1", new ConstantNode(BigInteger.ONE)),
-                Arguments.of("-1", new ConstantNode(new BigInteger("-1"))),
-                Arguments.of("(1)", new BracketNode(new ConstantNode(BigInteger.ONE))),
-                Arguments.of("1+2", new PlusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
-                Arguments.of("1-2", new MinusNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
+                Arguments.of("1",ConstantNode.of(1)),
+                Arguments.of("-1", ConstantNode.of(-1)),
+                Arguments.of("(1)", new BracketNode(one)),
+                Arguments.of("1+2", new PlusNode(one, two)),
+                Arguments.of("1-2", new MinusNode(one, two)),
                 Arguments.of(
-                        "1*2", new MultiplyNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))),
+                        "1*2", new MultiplyNode(one, two)),
                 Arguments.of(
-                        "1/2", new FractionNode(new ConstantNode(BigInteger.ONE), new ConstantNode(BigInteger.TWO))));
+                        "1/2",  FractionNode.of(1,2)));
     }
 
     @ParameterizedTest

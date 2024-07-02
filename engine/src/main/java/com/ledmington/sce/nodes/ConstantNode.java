@@ -20,6 +20,10 @@ package com.ledmington.sce.nodes;
 import java.math.BigInteger;
 
 public record ConstantNode(BigInteger value) implements Node {
+    public static ConstantNode of(final int value){
+        return new ConstantNode(BigInteger.valueOf(value));
+    }
+
     @Override
     public String toExpression() {
         return value.toString();

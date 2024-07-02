@@ -17,7 +17,17 @@
 */
 package com.ledmington.sce.nodes;
 
+import java.math.BigInteger;
+
 public record FractionNode(Node numerator, Node denominator) implements Node {
+    public static FractionNode of(final int constant){
+        return new FractionNode(ConstantNode.of(constant), ConstantNode.of(1));
+    }
+
+    public static FractionNode of(final int numerator,final int denominator){
+        return new FractionNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
+    }
+
     @Override
     public String toExpression() {
         return numerator.toExpression() + "/" + denominator.toExpression();
