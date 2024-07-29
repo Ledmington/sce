@@ -15,6 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ledmington.sce.tokens;
+package com.ledmington.sce.nodes;
 
-public interface Token {}
+public record VariableNode(String name) implements Node {
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
+
+    @Override
+    public String toExpression() {
+        return name;
+    }
+
+    @Override
+    public String toLatex() {
+        return name;
+    }
+}

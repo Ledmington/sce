@@ -17,4 +17,4 @@
  */
 package com.ledmington.sce.tokens;
 
-public interface Token {}
+public record Name(String name) implements Token {}
