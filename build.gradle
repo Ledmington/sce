@@ -15,7 +15,6 @@ static def path(String... args) {
 
 // Tunables
 ext.basePackage = 'com.ledmington'
-def version = '0.0.0'
 String appDescription = 'Symbolic Calculus Engine'
 String author = 'Filippo Barbari'
 String authorMail = 'filippo.barbari@gmail.com'
@@ -66,15 +65,12 @@ allprojects {
 
     test {
         useJUnitPlatform()
-        // failFast true
         finalizedBy jacocoTestReport
     }
 
     jacocoTestReport {
         dependsOn test // tests are required to run before generating the report
         reports {
-            // xml.required = true
-            // csv.required = true
             html.required = true
             html.outputLocation = layout.buildDirectory.dir('jacoco')
         }
@@ -87,8 +83,6 @@ allprojects {
 
     testlogger {
         theme 'standard'
-        // theme 'mocha'
-        // theme 'mocha-parallel'
 
         showExceptions true
         showStackTraces true
@@ -191,7 +185,6 @@ spotless {
 }
 
 allprojects.each {
-    // automatic formatting disabled until this gets fixed: https://github.com/palantir/palantir-java-format/issues/952
-    //it.tasks.compileJava.dependsOn(spotlessApply)
+    it.tasks.compileJava.dependsOn(spotlessApply)
     it.tasks.build.dependsOn(it.tasks.javadoc)
 }

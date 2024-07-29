@@ -7,7 +7,8 @@ static def path(final String ...s) {
     return String.join(File.separator, s)
 }
 
-String fatJarBaseName = "${appNameLowerCase}-cli"
+String version = "0.1.0"
+String fatJarBaseName = "${appNameLowerCase}-cli-${version}"
 String fatJarName = "${fatJarBaseName}.jar"
 String fatJarPath = path("${project.layout.buildDirectory.get().toString()}", "libs", "${fatJarName}")
 String mainClassName = "${basePackage}.Main"
@@ -22,15 +23,9 @@ application {
 
 run {
     args = []
-    jvmArgs = [
-            // "-ea",
-            // "-esa",
-            // "-XX:+TieredCompilation",
-            // "-XX:+PrintCompilation"
-    ]
+    jvmArgs = []
 }
 
-// utility function
 static def getDate() {
     return new Date().format('yyyyMMddHHmmss')
 }
@@ -48,7 +43,7 @@ tasks.register('fatJar', Jar) {
         archiveBaseName = appNameLowerCase
         attributes(
                 // "Implementation-Title": "Gradle",
-                // "Implementation-Version": version,
+                "Implementation-Version": "${version}",
                 "Main-Class": "$mainClassName"
         )
     }
