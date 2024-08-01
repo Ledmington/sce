@@ -18,10 +18,25 @@
 package com.ledmington.sce.tokens;
 
 public enum Symbols implements Token {
+
+    /** The symbol '('. */
     LEFT_BRACKET,
+
+    /** The symbol ')'. */
     RIGHT_BRACKET,
+
+    /** The symbol '+'. */
     PLUS,
+
+    /** The symbol '-'. */
     MINUS,
+
+    /** The symbol '*'. */
     ASTERISK,
-    SLASH
+
+    /** The symbol '/'. */
+    SLASH,
+
+    /** The symbol '^'. */
+    CARET
 }

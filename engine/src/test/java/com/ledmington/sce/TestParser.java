@@ -32,6 +32,7 @@ import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.nodes.PlusNode;
+import com.ledmington.sce.nodes.PowerNode;
 import com.ledmington.sce.nodes.VariableNode;
 import com.ledmington.sce.tokens.Tokenizer;
 
@@ -49,10 +50,12 @@ final class TestParser {
                 Arguments.of("1-2", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), two))),
                 Arguments.of("1*2", new MultiplyNode(one, two)),
                 Arguments.of("1/2", FractionNode.of(1, 2)),
+                Arguments.of("1^2", PowerNode.of(1, 2)),
                 Arguments.of("1+x", new PlusNode(one, x)),
                 Arguments.of("1-x", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), x))),
                 Arguments.of("1*x", new MultiplyNode(one, x)),
-                Arguments.of("1/x", new FractionNode(one, x)));
+                Arguments.of("1/x", new FractionNode(one, x)),
+                Arguments.of("1^x", new PowerNode(one, x)));
     }
 
     @ParameterizedTest

@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.ledmington.sce.nodes.ConstantNode;
 import com.ledmington.sce.nodes.FractionNode;
+import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.nodes.PlusNode;
@@ -57,7 +58,7 @@ final class TestEngine {
                 Arguments.of("-2/-3", twoThirds),
                 Arguments.of("6/8", FractionNode.of(3, 4)),
                 // fractions with denominator 1 are converted to constants
-                Arguments.of("5/1", FractionNode.of(5)),
+                Arguments.of("5/1", ConstantNode.of(5)),
                 // "by convention", we choose to always have the sign of a fraction at the
                 // numerator
                 Arguments.of("2/-3", FractionNode.of(-2, 3)),
@@ -77,6 +78,14 @@ final class TestEngine {
                 Arguments.of("2/(3/4)", FractionNode.of(8, 3)),
                 // (2/3)/(4/5) = 5/6
                 Arguments.of("(2/3)/(4/5)", FractionNode.of(5, 6)),
+                // 1^2 = 1
+                Arguments.of("1^2", one),
+                // 2^1 = 2
+                Arguments.of("2^1", two),
+                // 2^3 = 8
+                Arguments.of("2^3", ConstantNode.of(8)),
+                // (2/3)^3 = 8/27
+                Arguments.of("(2/3)^3", FractionNode.of(8, 27)),
                 // x = x
                 Arguments.of("x", new VariableNode("x")),
                 // (x) = x
@@ -84,7 +93,29 @@ final class TestEngine {
                 // x+1 = x+1
                 Arguments.of("x+1", new PlusNode(new VariableNode("x"), one)),
                 // x+1+2 = x+3
-                Arguments.of("x+1+2", new PlusNode(new VariableNode("x"), three)));
+                Arguments.of("x+1+2", new PlusNode(new VariableNode("x"), three)),
+                // 1+x+2 = 3+x
+                Arguments.of("1+x+2", new PlusNode(three, new VariableNode("x"))),
+                // x*2 = x*2
+                Arguments.of("x*2", new MultiplyNode(new VariableNode("x"), two)),
+                // x*2*3 = x*6
+                Arguments.of("x*2*3", new MultiplyNode(new VariableNode("x"), ConstantNode.of(6))),
+                // 2*x*3 = 6*x
+                Arguments.of("2*x*3", new MultiplyNode(ConstantNode.of(6), new VariableNode("x"))),
+                // x/2 = x/2
+                Arguments.of("x/2", new FractionNode(new VariableNode("x"), two)),
+                // 2*(3/x) = 6/x
+                Arguments.of("2*(3/x)", new FractionNode(ConstantNode.of(6), new VariableNode("x"))),
+                // i*i = -1
+                Arguments.of("i*i", ConstantNode.of(-1)),
+                // i^2 = -1
+                Arguments.of("i^2", ConstantNode.of(-1)),
+                // i^3 = -i
+                Arguments.of("i^3", new MultiplyNode(ConstantNode.of(-1), EngineConstants.getImaginaryUnit())),
+                // i^4 = 1
+                Arguments.of("i^4", ConstantNode.of(1)),
+                // i^5 = i
+                Arguments.of("i^5", EngineConstants.getImaginaryUnit()));
     }
 
     @ParameterizedTest

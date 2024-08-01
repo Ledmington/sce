@@ -17,24 +17,10 @@
  */
 package com.ledmington.sce.nodes;
 
-public record VariableNode(String name) implements Node {
-    @Override
-    public boolean isConstant() {
-        return false;
-    }
+public interface MultiNode extends Node {
+    ConstantNode identity();
 
-    @Override
-    public int size() {
-        return 1;
-    }
+    int numChildren();
 
-    @Override
-    public String toExpression() {
-        return name;
-    }
-
-    @Override
-    public String toLatex() {
-        return name;
-    }
+    Node getChild(final int idx);
 }

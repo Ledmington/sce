@@ -32,8 +32,19 @@ public record FractionNode(Node numerator, Node denominator) implements Node {
     }
 
     @Override
+    public int size() {
+        return 1 + numerator.size() + denominator.size();
+    }
+
+    @Override
     public String toExpression() {
-        return numerator.toExpression() + "/" + denominator.toExpression();
+        return ((numerator instanceof ConstantNode || numerator instanceof VariableNode)
+                        ? numerator.toExpression()
+                        : ("(" + numerator.toExpression() + ")"))
+                + "/"
+                + ((denominator instanceof ConstantNode || denominator instanceof VariableNode)
+                        ? denominator.toExpression()
+                        : ("(" + denominator.toExpression() + ")"));
     }
 
     @Override

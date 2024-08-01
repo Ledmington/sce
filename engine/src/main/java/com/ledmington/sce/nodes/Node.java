@@ -20,6 +20,8 @@ package com.ledmington.sce.nodes;
 public interface Node {
     boolean isConstant();
 
+    int size();
+
     String toExpression();
 
     String toLatex();

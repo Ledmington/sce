@@ -59,6 +59,10 @@ public final class Tokenizer {
                     tokens.add(Symbols.SLASH);
                     i++;
                 }
+                case '^' -> {
+                    tokens.add(Symbols.CARET);
+                    i++;
+                }
                 default -> {
                     if (Character.isDigit(ch)) {
                         tokens.add(readIntegerLiteral());

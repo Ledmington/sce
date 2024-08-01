@@ -21,8 +21,10 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import com.ledmington.sce.Engine;
+import com.ledmington.sce.EngineConstants;
 import com.ledmington.sce.nodes.ConstantNode;
 import com.ledmington.sce.nodes.FractionNode;
 import com.ledmington.sce.nodes.Node;
@@ -37,7 +39,35 @@ public final class Main {
             : System.console().writer();
 
     public static void main(final String[] args) {
-        final String input = String.join(" ", args);
+
+        final String shortHelpFlag = "-h";
+        final String longHelpFlag = "--help";
+        final String imaginaryUnitFlag = "--imaginary-unit";
+
+        int i = 0;
+        for (; i < args.length; i++) {
+            if (shortHelpFlag.equals(args[i]) || longHelpFlag.equals(args[i])) {
+                System.out.println(
+                        """
+
+                                sce - Symbolic Calculus Engine
+
+                                Usage: sce '(1/2)*(3-4)^2'
+
+                                Flags:
+                                 -h, --help          Print this help message and exits.
+                                 --imaginary-unit=X  Uses X as the imaginary unit. Default: "i".
+
+                                """);
+                System.exit(0);
+            } else if (args[i].startsWith(imaginaryUnitFlag)) {
+                EngineConstants.setImaginaryUnit(args[i].split("=")[1]);
+            } else {
+                break;
+            }
+        }
+
+        final String input = String.join(" ", Arrays.copyOfRange(args, i, args.length));
         final Token[] tokens = Tokenizer.tokenize(input);
         Node current = Parser.parse(tokens);
         out.printf("Input: %s%n", current.toExpression());

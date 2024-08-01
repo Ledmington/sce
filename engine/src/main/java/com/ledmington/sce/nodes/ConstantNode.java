@@ -30,6 +30,11 @@ public record ConstantNode(BigInteger value) implements Node {
     }
 
     @Override
+    public int size() {
+        return 1;
+    }
+
+    @Override
     public String toExpression() {
         return value.toString();
     }

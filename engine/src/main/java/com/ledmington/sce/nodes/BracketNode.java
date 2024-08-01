@@ -24,6 +24,11 @@ public record BracketNode(Node inner) implements Node {
     }
 
     @Override
+    public int size() {
+        return 1 + inner.size();
+    }
+
+    @Override
     public String toExpression() {
         return "(" + inner.toExpression() + ")";
     }

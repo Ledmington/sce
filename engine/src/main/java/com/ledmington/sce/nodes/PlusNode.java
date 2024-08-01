@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public final class PlusNode implements Node {
+public final class PlusNode implements MultiNode {
 
     private final List<Node> children;
 
@@ -41,21 +40,29 @@ public final class PlusNode implements Node {
         }
     }
 
-    public int size() {
+    @Override
+    public ConstantNode identity() {
+        return ConstantNode.of(0);
+    }
+
+    @Override
+    public int numChildren() {
         return children.size();
     }
 
-    public Node get(final int idx) {
+    @Override
+    public Node getChild(final int idx) {
         return children.get(idx);
-    }
-
-    public Stream<Node> stream() {
-        return children.stream();
     }
 
     @Override
     public boolean isConstant() {
         return children.stream().allMatch(Node::isConstant);
+    }
+
+    @Override
+    public int size() {
+        return 1 + children.stream().mapToInt(Node::size).sum();
     }
 
     @Override

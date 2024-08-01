@@ -17,24 +17,25 @@
  */
 package com.ledmington.sce.nodes;
 
-public record VariableNode(String name) implements Node {
+public record EquationNode(Node lhs, Node rhs) implements Node {
+
     @Override
     public boolean isConstant() {
-        return false;
+        return lhs.isConstant() && rhs.isConstant();
     }
 
     @Override
     public int size() {
-        return 1;
+        return 1 + lhs.size() + rhs.size();
     }
 
     @Override
     public String toExpression() {
-        return name;
+        return lhs.toExpression() + "=" + rhs.toExpression();
     }
 
     @Override
     public String toLatex() {
-        return name;
+        return lhs.toLatex() + "=" + rhs.toLatex();
     }
 }

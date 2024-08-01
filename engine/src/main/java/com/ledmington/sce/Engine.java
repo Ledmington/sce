@@ -20,18 +20,114 @@ package com.ledmington.sce;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.ledmington.sce.nodes.BracketNode;
 import com.ledmington.sce.nodes.ConstantNode;
 import com.ledmington.sce.nodes.FractionNode;
+import com.ledmington.sce.nodes.MultiNode;
 import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.PlusNode;
+import com.ledmington.sce.nodes.PowerNode;
 import com.ledmington.sce.nodes.VariableNode;
 
 public final class Engine {
 
     private Engine() {}
+
+    private static boolean containsSameTypeChildren(final MultiNode mn, final Predicate<Node> isSameType) {
+        for (int i = 0; i < mn.numChildren(); i++) {
+            if (isSameType.test(mn.getChild(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean enoughConstants(final MultiNode mn) {
+        final int minimumConstants = 2;
+        int count = 0;
+        for (int i = 0; i < mn.numChildren(); i++) {
+            if (mn.getChild(i).isConstant()) {
+                count++;
+                if (count >= minimumConstants) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static Node simplifyMultiNode(
+            final MultiNode mn,
+            final Predicate<Node> isSameType,
+            final Function<List<Node>, MultiNode> constructor,
+            final BinaryOperator<FractionNode> op) {
+        if (mn.numChildren() == 1) {
+            return mn.getChild(0);
+        }
+
+        if (containsSameTypeChildren(mn, isSameType)) {
+            // all PlusNode which contain other PlusNodes get flattened
+            final List<Node> nodes = new ArrayList<>();
+            for (int i = 0; i < mn.numChildren(); i++) {
+                if (isSameType.test(mn.getChild(i))) {
+                    final MultiNode inner = (MultiNode) mn.getChild(i);
+                    for (int j = 0; j < inner.numChildren(); j++) {
+                        nodes.add(inner.getChild(j));
+                    }
+                } else {
+                    nodes.add(mn.getChild(i));
+                }
+            }
+            return constructor.apply(nodes);
+        }
+
+        if (enoughConstants(mn)) {
+            // 1+x+2 = 3+x
+            FractionNode r = new FractionNode(mn.identity(), ConstantNode.of(1));
+            int first = -1;
+            for (int i = 0; i < mn.numChildren(); i++) {
+                if (mn.getChild(i) instanceof ConstantNode cn) {
+                    r = op.apply(r, new FractionNode(cn, ConstantNode.of(1)));
+                    if (first == -1) {
+                        first = i;
+                    }
+                } else if (mn.getChild(i) instanceof FractionNode fn
+                        && fn.numerator() instanceof ConstantNode
+                        && fn.denominator() instanceof ConstantNode) {
+                    r = op.apply(r, fn);
+                    if (first == -1) {
+                        first = i;
+                    }
+                }
+            }
+
+            final List<Node> nodes = new ArrayList<>();
+            for (int i = 0; i < mn.numChildren(); i++) {
+                if (i == first) {
+                    nodes.add(simplify(r));
+                } else if (mn.getChild(i) instanceof ConstantNode
+                        || (mn.getChild(i) instanceof FractionNode fn
+                                && fn.numerator() instanceof ConstantNode
+                                && fn.denominator() instanceof ConstantNode)) {
+                    continue;
+                } else {
+                    nodes.add(simplify(mn.getChild(i)));
+                }
+            }
+            return constructor.apply(nodes);
+        }
+
+        final List<Node> nodes = new ArrayList<>();
+        for (int i = 0; i < mn.numChildren(); i++) {
+            nodes.add(simplify(mn.getChild(i)));
+        }
+        return constructor.apply(nodes);
+    }
 
     public static Node simplify(final Node root) {
         return switch (root) {
@@ -51,113 +147,25 @@ public final class Engine {
                     }
                 }
             }
-            case PlusNode pn -> {
-                if (pn.size() == 1) {
-                    yield pn.get(0);
-                } else if (pn.stream().anyMatch(n -> n instanceof PlusNode)) {
-                    // 1+(2+3) = 1+2+3
-                    final List<Node> nodes = new ArrayList<>();
-                    for (int i = 0; i < pn.size(); i++) {
-                        if (pn.get(i) instanceof PlusNode inner) {
-                            for (int j = 0; j < inner.size(); j++) {
-                                nodes.add(inner.get(j));
-                            }
-                        } else {
-                            nodes.add(pn.get(i));
-                        }
-                    }
-                    yield new PlusNode(nodes);
-                } else if (pn.stream().filter(Node::isConstant).count() >= 2) {
-                    // 1+x+2 = 3+x
-                    FractionNode r = FractionNode.of(0, 1);
-                    int first = -1;
-                    for (int i = 0; i < pn.size(); i++) {
-                        if (pn.get(i) instanceof ConstantNode cn) {
-                            r = new FractionNode(
-                                    new PlusNode(r.numerator(), new MultiplyNode(cn, r.denominator())),
-                                    r.denominator());
-                            if (first == -1) {
-                                first = i;
-                            }
-                        } else if (pn.get(i) instanceof FractionNode fn
-                                && fn.numerator() instanceof ConstantNode num
-                                && fn.denominator() instanceof ConstantNode den) {
-                            r = new FractionNode(
-                                    new PlusNode(
-                                            new MultiplyNode(fn.numerator(), den),
-                                            new MultiplyNode(fn.denominator(), num)),
-                                    new MultiplyNode(fn.denominator(), den));
-                            if (first == -1) {
-                                first = i;
-                            }
-                        }
-                    }
-                    final List<Node> nodes = new ArrayList<>();
-                    for (int i = 0; i < pn.size(); i++) {
-                        if (i == first) {
-                            nodes.add(simplify(r));
-                        } else if (pn.get(i) instanceof ConstantNode || pn.get(i) instanceof FractionNode) {
-                            throw new Error("Not implemented");
-                        } else {
-                            nodes.add(simplify(pn.get(i)));
-                        }
-                    }
-                    yield new PlusNode(nodes);
-                } else {
-                    yield new PlusNode(pn.stream().map(Engine::simplify).toList());
-                }
-            }
-            case MultiplyNode mn -> {
-                if (mn.size() == 1) {
-                    yield mn.stream().findAny().orElseThrow();
-                } else if (mn.stream().anyMatch(n -> n instanceof MultiplyNode)) {
-                    // 1*(2*3) = 1*2*3
-                    final List<Node> nodes = new ArrayList<>();
-                    for (int i = 0; i < mn.size(); i++) {
-                        if (mn.get(i) instanceof MultiplyNode inner) {
-                            for (int j = 0; j < inner.size(); j++) {
-                                nodes.add(inner.get(j));
-                            }
-                        } else {
-                            nodes.add(mn.get(i));
-                        }
-                    }
-                    yield new MultiplyNode(nodes);
-                } else if (mn.stream().filter(Node::isConstant).count() >= 2) {
-                    // 1+x+2 = 3+x
-                    FractionNode r = FractionNode.of(1, 1);
-                    int first = -1;
-                    for (int i = 0; i < mn.size(); i++) {
-                        if (mn.get(i) instanceof ConstantNode cn) {
-                            r = new FractionNode(new MultiplyNode(r.numerator(), cn), r.denominator());
-                            if (first == -1) {
-                                first = i;
-                            }
-                        } else if (mn.get(i) instanceof FractionNode fn
-                                && fn.numerator() instanceof ConstantNode num
-                                && fn.denominator() instanceof ConstantNode den) {
-                            r = new FractionNode(
-                                    new MultiplyNode(fn.numerator(), num), new MultiplyNode(fn.denominator(), den));
-                            if (first == -1) {
-                                first = i;
-                            }
-                        }
-                    }
-                    final List<Node> nodes = new ArrayList<>();
-                    for (int i = 0; i < mn.size(); i++) {
-                        if (i == first) {
-                            nodes.add(simplify(r));
-                        } else if (mn.get(i) instanceof ConstantNode || mn.get(i) instanceof FractionNode) {
-                            throw new Error("Not implemented");
-                        } else {
-                            nodes.add(simplify(mn.get(i)));
-                        }
-                    }
-                    yield new MultiplyNode(nodes);
-                } else {
-                    yield new MultiplyNode(mn.stream().map(Engine::simplify).toList());
-                }
-            }
+            case PlusNode pn -> simplifyMultiNode(pn, x -> x instanceof PlusNode, l -> new PlusNode(l), (a, b) -> {
+                final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                final BigInteger d = d1.multiply(d2);
+                final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
+                return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+            });
+            case MultiplyNode mn -> simplifyMultiNode(
+                    mn, x -> x instanceof MultiplyNode, l -> new MultiplyNode(l), (a, b) -> {
+                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                        final BigInteger d = d1.multiply(d2);
+                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                        final BigInteger n = n1.multiply(n2);
+                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+                    });
             case FractionNode fn -> {
                 if (fn.denominator() instanceof ConstantNode cn && cn.value().compareTo(BigInteger.ONE) == 0) {
                     yield fn.numerator();
@@ -195,6 +203,18 @@ public final class Engine {
                 }
 
                 yield new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
+            }
+            case PowerNode pn -> {
+                if (pn.base() instanceof ConstantNode bn && pn.exponent() instanceof ConstantNode en) {
+                    yield new ConstantNode(bn.value().pow(en.value().intValue()));
+                }
+                if (pn.base() instanceof FractionNode fn
+                        && fn.numerator() instanceof ConstantNode num
+                        && fn.denominator() instanceof ConstantNode den) {
+                    yield new FractionNode(
+                            simplify(new PowerNode(num, pn.exponent())), simplify(new PowerNode(den, pn.exponent())));
+                }
+                yield new PowerNode(simplify(pn.base()), simplify(pn.exponent()));
             }
             case null -> throw new NullPointerException();
             default -> root;

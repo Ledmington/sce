@@ -17,24 +17,38 @@
  */
 package com.ledmington.sce.nodes;
 
-public record VariableNode(String name) implements Node {
+public record PowerNode(Node base, Node exponent) implements Node {
+    public static PowerNode of(final int constant) {
+        return new PowerNode(ConstantNode.of(constant), ConstantNode.of(1));
+    }
+
+    public static PowerNode of(final int numerator, final int denominator) {
+        return new PowerNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
+    }
+
     @Override
     public boolean isConstant() {
-        return false;
+        return base.isConstant() && exponent.isConstant();
     }
 
     @Override
     public int size() {
-        return 1;
+        return 1 + base.size() + exponent.size();
     }
 
     @Override
     public String toExpression() {
-        return name;
+        return ((base instanceof ConstantNode || base instanceof VariableNode)
+                        ? base.toExpression()
+                        : ("(" + base.toExpression() + ")"))
+                + "^"
+                + ((exponent instanceof ConstantNode || exponent instanceof VariableNode)
+                        ? exponent.toExpression()
+                        : ("(" + exponent.toExpression() + ")"));
     }
 
     @Override
     public String toLatex() {
-        return name;
+        return base.toLatex() + "^" + exponent.toLatex();
     }
 }

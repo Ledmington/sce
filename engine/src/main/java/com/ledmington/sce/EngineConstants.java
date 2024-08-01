@@ -15,26 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ledmington.sce.nodes;
+package com.ledmington.sce;
 
-public record VariableNode(String name) implements Node {
-    @Override
-    public boolean isConstant() {
-        return false;
+import java.util.Objects;
+
+import com.ledmington.sce.nodes.Node;
+import com.ledmington.sce.nodes.VariableNode;
+
+public final class EngineConstants {
+
+    private static String imaginaryUnit = "i";
+
+    public static void setImaginaryUnit(final String unit) {
+        Objects.requireNonNull(unit);
+        if (unit.isBlank() || unit.isEmpty()) {
+            throw new IllegalArgumentException("Invalid imaginary unit");
+        }
+        imaginaryUnit = unit;
     }
 
-    @Override
-    public int size() {
-        return 1;
+    public static Node getImaginaryUnit() {
+        return new VariableNode(imaginaryUnit);
     }
 
-    @Override
-    public String toExpression() {
-        return name;
-    }
-
-    @Override
-    public String toLatex() {
-        return name;
-    }
+    private EngineConstants() {}
 }
