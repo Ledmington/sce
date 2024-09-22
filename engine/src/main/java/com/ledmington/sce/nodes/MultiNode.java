@@ -18,6 +18,7 @@
 package com.ledmington.sce.nodes;
 
 public interface MultiNode extends Node {
+
     ConstantNode identity();
 
     int numChildren();

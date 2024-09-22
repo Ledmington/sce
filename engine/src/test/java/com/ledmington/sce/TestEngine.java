@@ -19,6 +19,7 @@ package com.ledmington.sce;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.math.BigInteger;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,6 +45,7 @@ final class TestEngine {
         final FractionNode twoThirds = FractionNode.of(2, 3);
         final FractionNode sevenThirds = FractionNode.of(7, 3);
         return Stream.of(
+                // constants
                 Arguments.of("1", one),
                 Arguments.of("(1)", one),
                 Arguments.of("1+2", three),
@@ -51,70 +53,57 @@ final class TestEngine {
                 Arguments.of("1*2", two),
                 Arguments.of("2+3*4", ConstantNode.of(14)),
                 Arguments.of("(2+3)*4", ConstantNode.of(20)),
-                // fractions are not resolved
+                Arguments.of("1^2", one),
+                Arguments.of("2^1", two),
+                Arguments.of("0^2", ConstantNode.of(0)),
+                Arguments.of("2^0", ConstantNode.of(1)),
+                Arguments.of("3^3^3", new ConstantNode(BigInteger.valueOf(7_625_597_484_987L))),
+                Arguments.of("(3^3)^3", ConstantNode.of(19_683)),
+                // fractions
                 Arguments.of("1/2", oneHalf),
                 Arguments.of("(1/2)", oneHalf),
-                // fractions can be simplified
                 Arguments.of("-2/-3", twoThirds),
                 Arguments.of("6/8", FractionNode.of(3, 4)),
-                // fractions with denominator 1 are converted to constants
                 Arguments.of("5/1", ConstantNode.of(5)),
-                // "by convention", we choose to always have the sign of a fraction at the
-                // numerator
                 Arguments.of("2/-3", FractionNode.of(-2, 3)),
-                // 1/2+1/3 = 5/6
                 Arguments.of("1/2+1/3", FractionNode.of(5, 6)),
-                // 2+1/3 = 7/3
                 Arguments.of("2+1/3", sevenThirds),
-                // 1/3+2 = 7/3
                 Arguments.of("1/3+2", sevenThirds),
-                // 5/6-1/3 = 1/2
                 Arguments.of("5/6-1/3", oneHalf),
-                // 2/3*4/5 = 8/15
                 Arguments.of("2/3*4/5", FractionNode.of(8, 15)),
-                // (2/3)/4 = 1/6
                 Arguments.of("(2/3)/4", FractionNode.of(1, 6)),
-                // 2/(3/4) = 8/3
                 Arguments.of("2/(3/4)", FractionNode.of(8, 3)),
-                // (2/3)/(4/5) = 5/6
                 Arguments.of("(2/3)/(4/5)", FractionNode.of(5, 6)),
-                // 1^2 = 1
                 Arguments.of("1^2", one),
-                // 2^1 = 2
                 Arguments.of("2^1", two),
-                // 2^3 = 8
                 Arguments.of("2^3", ConstantNode.of(8)),
-                // (2/3)^3 = 8/27
                 Arguments.of("(2/3)^3", FractionNode.of(8, 27)),
-                // x = x
+                //
                 Arguments.of("x", new VariableNode("x")),
-                // (x) = x
                 Arguments.of("(x)", new VariableNode("x")),
-                // x+1 = x+1
+                Arguments.of("x+0", new VariableNode("x")),
+                Arguments.of("0+x", new VariableNode("x")),
+                Arguments.of("0+x+0", new VariableNode("x")),
+                Arguments.of("x+0+0", new VariableNode("x")),
+                Arguments.of("0+0+x", new VariableNode("x")),
                 Arguments.of("x+1", new PlusNode(new VariableNode("x"), one)),
-                // x+1+2 = x+3
                 Arguments.of("x+1+2", new PlusNode(new VariableNode("x"), three)),
-                // 1+x+2 = 3+x
                 Arguments.of("1+x+2", new PlusNode(three, new VariableNode("x"))),
-                // x*2 = x*2
+                Arguments.of("x*1", new VariableNode("x")),
+                Arguments.of("1*x", new VariableNode("x")),
+                Arguments.of("1*x*1", new VariableNode("x")),
+                Arguments.of("x*1*1", new VariableNode("x")),
+                Arguments.of("1*1*x", new VariableNode("x")),
                 Arguments.of("x*2", new MultiplyNode(new VariableNode("x"), two)),
-                // x*2*3 = x*6
                 Arguments.of("x*2*3", new MultiplyNode(new VariableNode("x"), ConstantNode.of(6))),
-                // 2*x*3 = 6*x
                 Arguments.of("2*x*3", new MultiplyNode(ConstantNode.of(6), new VariableNode("x"))),
-                // x/2 = x/2
                 Arguments.of("x/2", new FractionNode(new VariableNode("x"), two)),
-                // 2*(3/x) = 6/x
                 Arguments.of("2*(3/x)", new FractionNode(ConstantNode.of(6), new VariableNode("x"))),
-                // i*i = -1
+                // imaginary unit
                 Arguments.of("i*i", ConstantNode.of(-1)),
-                // i^2 = -1
                 Arguments.of("i^2", ConstantNode.of(-1)),
-                // i^3 = -i
                 Arguments.of("i^3", new MultiplyNode(ConstantNode.of(-1), EngineConstants.getImaginaryUnit())),
-                // i^4 = 1
                 Arguments.of("i^4", ConstantNode.of(1)),
-                // i^5 = i
                 Arguments.of("i^5", EngineConstants.getImaginaryUnit()));
     }
 

@@ -53,9 +53,20 @@ public final class Engine {
         for (int i = 0; i < mn.numChildren(); i++) {
             if (mn.getChild(i).isConstant()) {
                 count++;
+
+                // early exit
                 if (count >= minimumConstants) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsIdentity(final MultiNode mn) {
+        for (int i = 0; i < mn.numChildren(); i++) {
+            if (mn.getChild(i).equals(mn.identity())) {
+                return true;
             }
         }
         return false;
@@ -66,12 +77,14 @@ public final class Engine {
             final Predicate<Node> isSameType,
             final Function<List<Node>, MultiNode> constructor,
             final BinaryOperator<FractionNode> op) {
+
+        // if there's only one children node, we don't need the MultiNode anymore
         if (mn.numChildren() == 1) {
             return mn.getChild(0);
         }
 
+        // all PlusNode which contain other PlusNodes get flattened
         if (containsSameTypeChildren(mn, isSameType)) {
-            // all PlusNode which contain other PlusNodes get flattened
             final List<Node> nodes = new ArrayList<>();
             for (int i = 0; i < mn.numChildren(); i++) {
                 if (isSameType.test(mn.getChild(i))) {
@@ -86,6 +99,18 @@ public final class Engine {
             return constructor.apply(nodes);
         }
 
+        // remove all identity nodes
+        if (containsIdentity(mn)) {
+            final List<Node> nodes = new ArrayList<>();
+            for (int i = 0; i < mn.numChildren(); i++) {
+                if (!mn.getChild(i).equals(mn.identity())) {
+                    nodes.add(mn.getChild(i));
+                }
+            }
+            return constructor.apply(nodes);
+        }
+
+        // If there are at least 2 constants, we can fold them
         if (enoughConstants(mn)) {
             // 1+x+2 = 3+x
             FractionNode r = new FractionNode(mn.identity(), ConstantNode.of(1));
@@ -106,26 +131,34 @@ public final class Engine {
                 }
             }
 
+            // at this point, r contains the result of the folding of the contants
+
             final List<Node> nodes = new ArrayList<>();
             for (int i = 0; i < mn.numChildren(); i++) {
                 if (i == first) {
+                    // add the result in the same position of the first constant
                     nodes.add(simplify(r));
-                } else if (mn.getChild(i) instanceof ConstantNode
-                        || (mn.getChild(i) instanceof FractionNode fn
-                                && fn.numerator() instanceof ConstantNode
-                                && fn.denominator() instanceof ConstantNode)) {
-                    continue;
                 } else {
-                    nodes.add(simplify(mn.getChild(i)));
+                    final boolean isConstant = (mn.getChild(i) instanceof ConstantNode
+                            || (mn.getChild(i) instanceof FractionNode fn
+                                    && fn.numerator() instanceof ConstantNode
+                                    && fn.denominator() instanceof ConstantNode));
+                    // we do not need to add the constants, since we folded them into r
+                    if (!isConstant) {
+                        nodes.add(simplify(mn.getChild(i)));
+                    }
                 }
             }
+
             return constructor.apply(nodes);
         }
 
+        // general case, simplify each node separately
         final List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < mn.numChildren(); i++) {
             nodes.add(simplify(mn.getChild(i)));
         }
+
         return constructor.apply(nodes);
     }
 
@@ -147,7 +180,7 @@ public final class Engine {
                     }
                 }
             }
-            case PlusNode pn -> simplifyMultiNode(pn, x -> x instanceof PlusNode, l -> new PlusNode(l), (a, b) -> {
+            case PlusNode pn -> simplifyMultiNode(pn, x -> x instanceof PlusNode, PlusNode::new, (a, b) -> {
                 final BigInteger d1 = ((ConstantNode) a.denominator()).value();
                 final BigInteger d2 = ((ConstantNode) b.denominator()).value();
                 final BigInteger d = d1.multiply(d2);
@@ -156,16 +189,15 @@ public final class Engine {
                 final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
                 return new FractionNode(new ConstantNode(n), new ConstantNode(d));
             });
-            case MultiplyNode mn -> simplifyMultiNode(
-                    mn, x -> x instanceof MultiplyNode, l -> new MultiplyNode(l), (a, b) -> {
-                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
-                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
-                        final BigInteger d = d1.multiply(d2);
-                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
-                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
-                        final BigInteger n = n1.multiply(n2);
-                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
-                    });
+            case MultiplyNode mn -> simplifyMultiNode(mn, x -> x instanceof MultiplyNode, MultiplyNode::new, (a, b) -> {
+                final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                final BigInteger d = d1.multiply(d2);
+                final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                final BigInteger n = n1.multiply(n2);
+                return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+            });
             case FractionNode fn -> {
                 if (fn.denominator() instanceof ConstantNode cn && cn.value().compareTo(BigInteger.ONE) == 0) {
                     yield fn.numerator();
