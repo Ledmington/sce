@@ -15,14 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ledmington.sce.nodes;
+package com.ledmington.sce.engine;
 
-/** A Node which can have multiple children nodes with commutativity. */
-public interface MultiNode extends Node {
+import java.util.function.UnaryOperator;
 
-    ConstantNode identity();
+import com.ledmington.sce.nodes.Node;
 
-    int getNumChildren();
+public record Move(int score) implements UnaryOperator<Node> {
 
-    Node getChild(final int idx);
+    @Override
+    public Node apply(final Node root) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'apply'");
+    }
 }

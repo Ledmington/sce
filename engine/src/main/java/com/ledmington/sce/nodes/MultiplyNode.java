@@ -17,26 +17,38 @@
  */
 package com.ledmington.sce.nodes;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class MultiplyNode implements MultiNode {
 
-    private final List<Node> children;
+    private final Map<Node, Integer> children;
 
-    public MultiplyNode(final Node... children) {
-        this.children = new ArrayList<>(children.length);
-        for (final Node n : children) {
-            this.children.add(Objects.requireNonNull(n));
+    public MultiplyNode(final Node... nodes) {
+        this.children = new HashMap<>();
+        for (final Node n : nodes) {
+            Objects.requireNonNull(n);
+            if (this.children.containsKey(n)) {
+                this.children.put(n, this.children.get(n) + 1);
+            } else {
+                this.children.put(n, 1);
+            }
         }
     }
 
     public MultiplyNode(final List<Node> nodes) {
-        this.children = new ArrayList<>(Objects.requireNonNull(nodes).size());
+        this.children = new HashMap<>();
         for (final Node n : nodes) {
-            this.children.add(Objects.requireNonNull(n));
+            Objects.requireNonNull(n);
+            if (this.children.containsKey(n)) {
+                this.children.put(n, this.children.get(n) + 1);
+            } else {
+                this.children.put(n, 1);
+            }
         }
     }
 
@@ -46,33 +58,46 @@ public final class MultiplyNode implements MultiNode {
     }
 
     @Override
-    public int numChildren() {
-        return children.size();
+    public int getNumChildren() {
+        return children.values().stream().mapToInt(x -> x).sum();
     }
 
     @Override
     public Node getChild(final int idx) {
-        return children.get(idx);
+        return children.entrySet().stream()
+                .flatMap(e -> Collections.nCopies(e.getValue(), e.getKey()).stream())
+                .skip(idx)
+                .findFirst()
+                .orElseThrow();
     }
 
     @Override
     public boolean isConstant() {
-        return children.stream().allMatch(Node::isConstant);
+        return children.keySet().stream().allMatch(Node::isConstant);
     }
 
     @Override
     public int size() {
-        return 1 + children.stream().mapToInt(Node::size).sum();
+        return 1
+                + children.entrySet().stream()
+                        .mapToInt(e -> e.getValue() * e.getKey().size())
+                        .sum();
     }
 
     @Override
     public String toExpression() {
-        return children.stream().map(Node::toExpression).collect(Collectors.joining("*"));
+        return children.entrySet().stream()
+                .flatMap(e -> Collections.nCopies(e.getValue(), e.getKey()).stream())
+                .map(Node::toExpression)
+                .collect(Collectors.joining("*"));
     }
 
     @Override
     public String toLatex() {
-        return children.stream().map(Node::toLatex).collect(Collectors.joining(" \\cdot "));
+        return children.entrySet().stream()
+                .flatMap(e -> Collections.nCopies(e.getValue(), e.getKey()).stream())
+                .map(Node::toLatex)
+                .collect(Collectors.joining("*"));
     }
 
     @Override

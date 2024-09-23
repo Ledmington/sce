@@ -15,14 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ledmington.sce.nodes;
+package com.ledmington.sce.engine;
 
-/** A Node which can have multiple children nodes with commutativity. */
-public interface MultiNode extends Node {
-
-    ConstantNode identity();
-
-    int getNumChildren();
-
-    Node getChild(final int idx);
-}
+public record Optimization() {}

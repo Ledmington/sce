@@ -20,6 +20,7 @@ package com.ledmington.sce;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,6 +33,7 @@ import com.ledmington.sce.nodes.MultiplyNode;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.Parser;
 import com.ledmington.sce.nodes.PlusNode;
+import com.ledmington.sce.nodes.PowerNode;
 import com.ledmington.sce.nodes.VariableNode;
 import com.ledmington.sce.tokens.Tokenizer;
 
@@ -44,6 +46,7 @@ final class TestEngine {
         final FractionNode oneHalf = FractionNode.of(1, 2);
         final FractionNode twoThirds = FractionNode.of(2, 3);
         final FractionNode sevenThirds = FractionNode.of(7, 3);
+        final VariableNode x = new VariableNode("x");
         return Stream.of(
                 // constants
                 Arguments.of("1", one),
@@ -57,8 +60,8 @@ final class TestEngine {
                 Arguments.of("2^1", two),
                 Arguments.of("0^2", ConstantNode.of(0)),
                 Arguments.of("2^0", ConstantNode.of(1)),
-                Arguments.of("3^3^3", new ConstantNode(BigInteger.valueOf(7_625_597_484_987L))),
-                Arguments.of("(3^3)^3", ConstantNode.of(19_683)),
+                Arguments.of("3^3^3", ConstantNode.of(19_683)),
+                Arguments.of("3^(3^3)", new ConstantNode(BigInteger.valueOf(7_625_597_484_987L))),
                 // fractions
                 Arguments.of("1/2", oneHalf),
                 Arguments.of("(1/2)", oneHalf),
@@ -79,32 +82,40 @@ final class TestEngine {
                 Arguments.of("2^3", ConstantNode.of(8)),
                 Arguments.of("(2/3)^3", FractionNode.of(8, 27)),
                 //
-                Arguments.of("x", new VariableNode("x")),
-                Arguments.of("(x)", new VariableNode("x")),
-                Arguments.of("x+0", new VariableNode("x")),
-                Arguments.of("0+x", new VariableNode("x")),
-                Arguments.of("0+x+0", new VariableNode("x")),
-                Arguments.of("x+0+0", new VariableNode("x")),
-                Arguments.of("0+0+x", new VariableNode("x")),
-                Arguments.of("x+1", new PlusNode(new VariableNode("x"), one)),
-                Arguments.of("x+1+2", new PlusNode(new VariableNode("x"), three)),
-                Arguments.of("1+x+2", new PlusNode(three, new VariableNode("x"))),
-                Arguments.of("x*1", new VariableNode("x")),
-                Arguments.of("1*x", new VariableNode("x")),
-                Arguments.of("1*x*1", new VariableNode("x")),
-                Arguments.of("x*1*1", new VariableNode("x")),
-                Arguments.of("1*1*x", new VariableNode("x")),
-                Arguments.of("x*2", new MultiplyNode(new VariableNode("x"), two)),
-                Arguments.of("x*2*3", new MultiplyNode(new VariableNode("x"), ConstantNode.of(6))),
-                Arguments.of("2*x*3", new MultiplyNode(ConstantNode.of(6), new VariableNode("x"))),
-                Arguments.of("x/2", new FractionNode(new VariableNode("x"), two)),
-                Arguments.of("2*(3/x)", new FractionNode(ConstantNode.of(6), new VariableNode("x"))),
+                Arguments.of("x", x),
+                Arguments.of("(x)", x),
+                Arguments.of("x+0", x),
+                Arguments.of("0+x", x),
+                Arguments.of("0+x+0", x),
+                Arguments.of("x+0+0", x),
+                Arguments.of("0+0+x", x),
+                Arguments.of("x+1", new PlusNode(x, one)),
+                Arguments.of("x+1+2", new PlusNode(x, three)),
+                Arguments.of("1+x+2", new PlusNode(three, x)),
+                Arguments.of("x*1", x),
+                Arguments.of("1*x", x),
+                Arguments.of("1*x*1", x),
+                Arguments.of("x*1*1", x),
+                Arguments.of("1*1*x", x),
+                Arguments.of("x*2", new MultiplyNode(x, two)),
+                Arguments.of("x*2*3", new MultiplyNode(x, ConstantNode.of(6))),
+                Arguments.of("2*x*3", new MultiplyNode(ConstantNode.of(6), x)),
+                Arguments.of("x/2", new FractionNode(x, two)),
+                Arguments.of("2*(3/x)", new FractionNode(ConstantNode.of(6), x)),
+                Arguments.of(
+                        "x+3+x",
+                        new PlusNode(List.of(new MultiplyNode(List.of(ConstantNode.of(2), x)), ConstantNode.of(3)))),
+                Arguments.of(
+                        "x*3*x", new MultiplyNode(List.of(new PowerNode(x, ConstantNode.of(2)), ConstantNode.of(3)))),
                 // imaginary unit
                 Arguments.of("i*i", ConstantNode.of(-1)),
                 Arguments.of("i^2", ConstantNode.of(-1)),
                 Arguments.of("i^3", new MultiplyNode(ConstantNode.of(-1), EngineConstants.getImaginaryUnit())),
                 Arguments.of("i^4", ConstantNode.of(1)),
-                Arguments.of("i^5", EngineConstants.getImaginaryUnit()));
+                Arguments.of("i^5", EngineConstants.getImaginaryUnit()),
+                Arguments.of("i^6", ConstantNode.of(-1)),
+                Arguments.of("i^7", new MultiplyNode(ConstantNode.of(-1), EngineConstants.getImaginaryUnit())),
+                Arguments.of("i^8", ConstantNode.of(1)));
     }
 
     @ParameterizedTest

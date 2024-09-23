@@ -19,10 +19,14 @@ package com.ledmington.sce;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import com.ledmington.sce.nodes.BracketNode;
 import com.ledmington.sce.nodes.ConstantNode;
@@ -39,7 +43,7 @@ public final class Engine {
     private Engine() {}
 
     private static boolean containsSameTypeChildren(final MultiNode mn, final Predicate<Node> isSameType) {
-        for (int i = 0; i < mn.numChildren(); i++) {
+        for (int i = 0; i < mn.getNumChildren(); i++) {
             if (isSameType.test(mn.getChild(i))) {
                 return true;
             }
@@ -50,7 +54,7 @@ public final class Engine {
     private static boolean enoughConstants(final MultiNode mn) {
         final int minimumConstants = 2;
         int count = 0;
-        for (int i = 0; i < mn.numChildren(); i++) {
+        for (int i = 0; i < mn.getNumChildren(); i++) {
             if (mn.getChild(i).isConstant()) {
                 count++;
 
@@ -64,7 +68,7 @@ public final class Engine {
     }
 
     private static boolean containsIdentity(final MultiNode mn) {
-        for (int i = 0; i < mn.numChildren(); i++) {
+        for (int i = 0; i < mn.getNumChildren(); i++) {
             if (mn.getChild(i).equals(mn.identity())) {
                 return true;
             }
@@ -72,24 +76,33 @@ public final class Engine {
         return false;
     }
 
+    private static boolean atLeastTwoEqualNodes(final MultiNode mn) {
+        return IntStream.range(0, mn.getNumChildren())
+                        .mapToObj(i -> mn.getChild(i))
+                        .distinct()
+                        .count()
+                < (long) mn.getNumChildren();
+    }
+
     private static Node simplifyMultiNode(
             final MultiNode mn,
             final Predicate<Node> isSameType,
             final Function<List<Node>, MultiNode> constructor,
-            final BinaryOperator<FractionNode> op) {
+            final BinaryOperator<FractionNode> op,
+            final BiFunction<Node, Integer, Node> combinator) {
 
         // if there's only one children node, we don't need the MultiNode anymore
-        if (mn.numChildren() == 1) {
+        if (mn.getNumChildren() == 1) {
             return mn.getChild(0);
         }
 
         // all PlusNode which contain other PlusNodes get flattened
         if (containsSameTypeChildren(mn, isSameType)) {
             final List<Node> nodes = new ArrayList<>();
-            for (int i = 0; i < mn.numChildren(); i++) {
+            for (int i = 0; i < mn.getNumChildren(); i++) {
                 if (isSameType.test(mn.getChild(i))) {
                     final MultiNode inner = (MultiNode) mn.getChild(i);
-                    for (int j = 0; j < inner.numChildren(); j++) {
+                    for (int j = 0; j < inner.getNumChildren(); j++) {
                         nodes.add(inner.getChild(j));
                     }
                 } else {
@@ -102,7 +115,7 @@ public final class Engine {
         // remove all identity nodes
         if (containsIdentity(mn)) {
             final List<Node> nodes = new ArrayList<>();
-            for (int i = 0; i < mn.numChildren(); i++) {
+            for (int i = 0; i < mn.getNumChildren(); i++) {
                 if (!mn.getChild(i).equals(mn.identity())) {
                     nodes.add(mn.getChild(i));
                 }
@@ -115,7 +128,7 @@ public final class Engine {
             // 1+x+2 = 3+x
             FractionNode r = new FractionNode(mn.identity(), ConstantNode.of(1));
             int first = -1;
-            for (int i = 0; i < mn.numChildren(); i++) {
+            for (int i = 0; i < mn.getNumChildren(); i++) {
                 if (mn.getChild(i) instanceof ConstantNode cn) {
                     r = op.apply(r, new FractionNode(cn, ConstantNode.of(1)));
                     if (first == -1) {
@@ -134,7 +147,7 @@ public final class Engine {
             // at this point, r contains the result of the folding of the contants
 
             final List<Node> nodes = new ArrayList<>();
-            for (int i = 0; i < mn.numChildren(); i++) {
+            for (int i = 0; i < mn.getNumChildren(); i++) {
                 if (i == first) {
                     // add the result in the same position of the first constant
                     nodes.add(simplify(r));
@@ -153,9 +166,38 @@ public final class Engine {
             return constructor.apply(nodes);
         }
 
+        if (atLeastTwoEqualNodes(mn)) {
+            // 3+x+x = 3+2*x
+            // 3*x*x = 3*x^2
+
+            final Map<Node, Integer> occurrences = new HashMap<>();
+            for (int i = 0; i < mn.getNumChildren(); i++) {
+                final Node n = mn.getChild(i);
+                if (occurrences.containsKey(n)) {
+                    occurrences.put(n, occurrences.get(n) + 1);
+                } else {
+                    occurrences.put(n, 1);
+                }
+            }
+
+            final List<Node> nodes = new ArrayList<>();
+            for (final Map.Entry<Node, Integer> e : occurrences.entrySet()) {
+                if (e.getValue() < 1) {
+                    throw new IllegalStateException();
+                }
+                if (e.getValue() == 1) {
+                    nodes.add(e.getKey());
+                } else {
+                    nodes.add(combinator.apply(e.getKey(), e.getValue()));
+                }
+            }
+
+            return constructor.apply(nodes);
+        }
+
         // general case, simplify each node separately
         final List<Node> nodes = new ArrayList<>();
-        for (int i = 0; i < mn.numChildren(); i++) {
+        for (int i = 0; i < mn.getNumChildren(); i++) {
             nodes.add(simplify(mn.getChild(i)));
         }
 
@@ -180,24 +222,38 @@ public final class Engine {
                     }
                 }
             }
-            case PlusNode pn -> simplifyMultiNode(pn, x -> x instanceof PlusNode, PlusNode::new, (a, b) -> {
-                final BigInteger d1 = ((ConstantNode) a.denominator()).value();
-                final BigInteger d2 = ((ConstantNode) b.denominator()).value();
-                final BigInteger d = d1.multiply(d2);
-                final BigInteger n1 = ((ConstantNode) a.numerator()).value();
-                final BigInteger n2 = ((ConstantNode) b.numerator()).value();
-                final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
-                return new FractionNode(new ConstantNode(n), new ConstantNode(d));
-            });
-            case MultiplyNode mn -> simplifyMultiNode(mn, x -> x instanceof MultiplyNode, MultiplyNode::new, (a, b) -> {
-                final BigInteger d1 = ((ConstantNode) a.denominator()).value();
-                final BigInteger d2 = ((ConstantNode) b.denominator()).value();
-                final BigInteger d = d1.multiply(d2);
-                final BigInteger n1 = ((ConstantNode) a.numerator()).value();
-                final BigInteger n2 = ((ConstantNode) b.numerator()).value();
-                final BigInteger n = n1.multiply(n2);
-                return new FractionNode(new ConstantNode(n), new ConstantNode(d));
-            });
+            case PlusNode pn -> simplifyMultiNode(
+                    pn,
+                    x -> x instanceof PlusNode,
+                    PlusNode::new,
+                    (a, b) -> {
+                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                        final BigInteger d = d1.multiply(d2);
+                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                        final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
+                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+                    },
+                    (n, i) -> {
+                        return new MultiplyNode(List.of(ConstantNode.of(i), n));
+                    });
+            case MultiplyNode mn -> simplifyMultiNode(
+                    mn,
+                    x -> x instanceof MultiplyNode,
+                    MultiplyNode::new,
+                    (a, b) -> {
+                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                        final BigInteger d = d1.multiply(d2);
+                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                        final BigInteger n = n1.multiply(n2);
+                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+                    },
+                    (n, i) -> {
+                        return new PowerNode(n, ConstantNode.of(i));
+                    });
             case FractionNode fn -> {
                 if (fn.denominator() instanceof ConstantNode cn && cn.value().compareTo(BigInteger.ONE) == 0) {
                     yield fn.numerator();
@@ -245,6 +301,15 @@ public final class Engine {
                         && fn.denominator() instanceof ConstantNode den) {
                     yield new FractionNode(
                             simplify(new PowerNode(num, pn.exponent())), simplify(new PowerNode(den, pn.exponent())));
+                }
+                if (pn.base().equals(EngineConstants.getImaginaryUnit()) && pn.exponent() instanceof ConstantNode e) {
+                    yield switch (e.value().mod(BigInteger.valueOf(4)).intValue()) {
+                        case 0 -> ConstantNode.of(1);
+                        case 1 -> EngineConstants.getImaginaryUnit();
+                        case 2 -> ConstantNode.of(-1);
+                        case 3 -> new MultiplyNode(ConstantNode.of(-1), EngineConstants.getImaginaryUnit());
+                        default -> throw new IllegalStateException();
+                    };
                 }
                 yield new PowerNode(simplify(pn.base()), simplify(pn.exponent()));
             }
