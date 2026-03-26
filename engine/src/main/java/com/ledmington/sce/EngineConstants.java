@@ -1,6 +1,6 @@
 /*
  * sce - Symbolic Calculus Engine
- * Copyright (C) 2024-2024 Filippo Barbari <filippo.barbari@gmail.com>
+ * Copyright (C) 2024-2026 Filippo Barbari <filippo.barbari@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
