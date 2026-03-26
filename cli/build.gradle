@@ -26,19 +26,15 @@ run {
     jvmArgs = []
 }
 
-static def getDate() {
-    return new Date().format('yyyyMMddHHmmss')
-}
-
 tasks.register('fatJar', Jar) {
-    group 'distribution'
-    description 'Builds the fat jar of the application'
+    group = 'distribution'
+    description = 'Builds the fat jar of the application'
     from sourceSets.main.output
     dependsOn configurations.runtimeClasspath
     from {
         configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
     }
-    duplicatesStrategy = 'include'
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     manifest {
         archiveBaseName = appNameLowerCase
         attributes(
