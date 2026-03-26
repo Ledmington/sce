@@ -78,7 +78,7 @@ public final class Engine {
 
 	private static boolean atLeastTwoEqualNodes(final MultiNode mn) {
 		return IntStream.range(0, mn.getNumChildren())
-						.mapToObj(i -> mn.getChild(i))
+						.mapToObj(mn::getChild)
 						.distinct()
 						.count()
 				< (long) mn.getNumChildren();
@@ -153,9 +153,9 @@ public final class Engine {
 					nodes.add(simplify(r));
 				} else {
 					final boolean isConstant = (mn.getChild(i) instanceof ConstantNode
-							|| (mn.getChild(i) instanceof FractionNode fn
-									&& fn.numerator() instanceof ConstantNode
-									&& fn.denominator() instanceof ConstantNode));
+							|| (mn.getChild(i) instanceof FractionNode(final Node numerator, final Node denominator)
+									&& numerator instanceof ConstantNode
+									&& denominator instanceof ConstantNode));
 					// we do not need to add the constants, since we folded them into r
 					if (!isConstant) {
 						nodes.add(simplify(mn.getChild(i)));
@@ -236,9 +236,7 @@ public final class Engine {
 							final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
 							return new FractionNode(new ConstantNode(n), new ConstantNode(d));
 						},
-						(n, i) -> {
-							return new MultiplyNode(List.of(ConstantNode.of(i), n));
-						});
+						(n, i) -> new MultiplyNode(List.of(ConstantNode.of(i), n)));
 			case MultiplyNode mn ->
 				simplifyMultiNode(
 						mn,
@@ -253,32 +251,33 @@ public final class Engine {
 							final BigInteger n = n1.multiply(n2);
 							return new FractionNode(new ConstantNode(n), new ConstantNode(d));
 						},
-						(n, i) -> {
-							return new PowerNode(n, ConstantNode.of(i));
-						});
+						(n, i) -> new PowerNode(n, ConstantNode.of(i)));
 			case FractionNode fn -> {
-				if (fn.denominator() instanceof ConstantNode cn && cn.value().compareTo(BigInteger.ONE) == 0) {
+				if (fn.denominator() instanceof ConstantNode(final BigInteger value)
+						&& value.compareTo(BigInteger.ONE) == 0) {
 					yield fn.numerator();
 				}
-				if (fn.numerator() instanceof FractionNode num && fn.denominator() instanceof ConstantNode cn) {
-					yield new FractionNode(
-							simplify(num.numerator()), simplify(new MultiplyNode(num.denominator(), cn)));
+				if (fn.numerator() instanceof FractionNode(final Node numerator, final Node denominator)
+						&& fn.denominator() instanceof ConstantNode cn) {
+					yield new FractionNode(simplify(numerator), simplify(new MultiplyNode(denominator, cn)));
 				}
-				if (fn.numerator() instanceof ConstantNode cn && fn.denominator() instanceof FractionNode den) {
-					yield new FractionNode(
-							simplify(new MultiplyNode(cn, den.denominator())), simplify(den.numerator()));
+				if (fn.numerator() instanceof ConstantNode cn
+						&& fn.denominator() instanceof FractionNode(final Node numerator, final Node denominator)) {
+					yield new FractionNode(simplify(new MultiplyNode(cn, denominator)), simplify(numerator));
 				}
-				if (fn.numerator() instanceof FractionNode num && fn.denominator() instanceof FractionNode den) {
+				if (fn.numerator() instanceof FractionNode(final Node numerator, final Node denominator)
+						&& fn.denominator() instanceof FractionNode(final Node numerator2, final Node denominator2)) {
 					yield new FractionNode(
-							simplify(new MultiplyNode(num.numerator(), den.denominator())),
-							simplify(new MultiplyNode(num.denominator(), den.numerator())));
+							simplify(new MultiplyNode(numerator, denominator2)),
+							simplify(new MultiplyNode(denominator, numerator2)));
 				}
-				if (fn.numerator() instanceof ConstantNode num && fn.denominator() instanceof ConstantNode den) {
-					final BigInteger mcd = num.value().gcd(den.value());
-					final boolean isNumeratorNegative = num.value().compareTo(BigInteger.ZERO) < 0;
-					final boolean isDenominatorNegative = den.value().compareTo(BigInteger.ZERO) < 0;
-					final BigInteger newNumerator = num.value().divide(mcd).abs();
-					final BigInteger newDenominator = den.value().divide(mcd).abs();
+				if (fn.numerator() instanceof ConstantNode(final BigInteger num)
+						&& fn.denominator() instanceof ConstantNode(final BigInteger den)) {
+					final BigInteger mcd = num.gcd(den);
+					final boolean isNumeratorNegative = num.compareTo(BigInteger.ZERO) < 0;
+					final boolean isDenominatorNegative = den.compareTo(BigInteger.ZERO) < 0;
+					final BigInteger newNumerator = num.divide(mcd).abs();
+					final BigInteger newDenominator = den.divide(mcd).abs();
 
 					if (isNumeratorNegative && isDenominatorNegative) {
 						yield new FractionNode(new ConstantNode(newNumerator), new ConstantNode(newDenominator));
@@ -295,17 +294,19 @@ public final class Engine {
 				yield new FractionNode(simplify(fn.numerator()), simplify(fn.denominator()));
 			}
 			case PowerNode pn -> {
-				if (pn.base() instanceof ConstantNode bn && pn.exponent() instanceof ConstantNode en) {
-					yield new ConstantNode(bn.value().pow(en.value().intValue()));
+				if (pn.base() instanceof ConstantNode(final BigInteger base)
+						&& pn.exponent() instanceof ConstantNode(final BigInteger exp)) {
+					yield new ConstantNode(base.pow(exp.intValue()));
 				}
-				if (pn.base() instanceof FractionNode fn
-						&& fn.numerator() instanceof ConstantNode num
-						&& fn.denominator() instanceof ConstantNode den) {
+				if (pn.base() instanceof FractionNode(final Node numerator, final Node denominator)
+						&& numerator instanceof ConstantNode num
+						&& denominator instanceof ConstantNode den) {
 					yield new FractionNode(
 							simplify(new PowerNode(num, pn.exponent())), simplify(new PowerNode(den, pn.exponent())));
 				}
-				if (pn.base().equals(EngineConstants.getImaginaryUnit()) && pn.exponent() instanceof ConstantNode e) {
-					yield switch (e.value().mod(BigInteger.valueOf(4)).intValue()) {
+				if (pn.base().equals(EngineConstants.getImaginaryUnit())
+						&& pn.exponent() instanceof ConstantNode(final BigInteger value)) {
+					yield switch (value.mod(BigInteger.valueOf(4)).intValue()) {
 						case 0 -> ConstantNode.of(1);
 						case 1 -> EngineConstants.getImaginaryUnit();
 						case 2 -> ConstantNode.of(-1);

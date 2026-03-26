@@ -28,7 +28,7 @@ public final class EngineConstants {
 
 	public static void setImaginaryUnit(final String unit) {
 		Objects.requireNonNull(unit);
-		if (unit.isBlank() || unit.isEmpty()) {
+		if (unit.isBlank()) {
 			throw new IllegalArgumentException("Invalid imaginary unit");
 		}
 		imaginaryUnit = unit;

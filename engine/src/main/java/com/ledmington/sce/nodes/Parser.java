@@ -37,10 +37,10 @@ public final class Parser {
 
 		// Convert all IntegerLiterals into ConstantNodes (maybe merge those classes?)
 		for (int i = 0; i < partialAST.size(); i++) {
-			if (partialAST.get(i) instanceof IntegerLiteral il) {
-				partialAST.set(i, new ConstantNode(il.value()));
-			} else if (partialAST.get(i) instanceof Name n) {
-				partialAST.set(i, new VariableNode(n.name()));
+			if (partialAST.get(i) instanceof IntegerLiteral(final BigInteger value)) {
+				partialAST.set(i, new ConstantNode(value));
+			} else if (partialAST.get(i) instanceof Name(final String name)) {
+				partialAST.set(i, new VariableNode(name));
 			}
 		}
 
@@ -101,9 +101,9 @@ public final class Parser {
 				}
 				if (i < partialAST.size() - 1
 						&& partialAST.get(i) == Symbols.MINUS
-						&& partialAST.get(i + 1) instanceof ConstantNode cn) {
+						&& partialAST.get(i + 1) instanceof ConstantNode(final BigInteger value)) {
 					partialAST.remove(i);
-					partialAST.set(i, new ConstantNode(cn.value().multiply(new BigInteger("-1"))));
+					partialAST.set(i, new ConstantNode(value.multiply(new BigInteger("-1"))));
 				}
 			}
 

@@ -19,6 +19,7 @@ package com.ledmington;
 
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -81,12 +82,8 @@ public final class Main {
 		}
 
 		out.printf("Final result: %s%n", next.toExpression());
-		if (next instanceof FractionNode fn
-				&& fn.numerator() instanceof ConstantNode num
-				&& fn.denominator() instanceof ConstantNode den) {
-			out.printf(
-					"Value: %.20f%n",
-					new BigDecimal(num.value()).divide(new BigDecimal(den.value()), new MathContext(20)));
+		if (next instanceof FractionNode(ConstantNode(final BigInteger num), ConstantNode(final BigInteger den))) {
+			out.printf("Value: %.20f%n", new BigDecimal(num).divide(new BigDecimal(den), new MathContext(20)));
 		}
 		out.printf("Final result (LaTeX): %s%n", next.toLatex());
 
