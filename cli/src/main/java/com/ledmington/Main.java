@@ -47,8 +47,7 @@ public final class Main {
         int i = 0;
         for (; i < args.length; i++) {
             if (shortHelpFlag.equals(args[i]) || longHelpFlag.equals(args[i])) {
-                System.out.println(
-                        """
+                System.out.println("""
 
                                 sce - Symbolic Calculus Engine
 

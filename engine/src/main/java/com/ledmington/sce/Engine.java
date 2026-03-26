@@ -222,38 +222,40 @@ public final class Engine {
                     }
                 }
             }
-            case PlusNode pn -> simplifyMultiNode(
-                    pn,
-                    x -> x instanceof PlusNode,
-                    PlusNode::new,
-                    (a, b) -> {
-                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
-                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
-                        final BigInteger d = d1.multiply(d2);
-                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
-                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
-                        final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
-                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
-                    },
-                    (n, i) -> {
-                        return new MultiplyNode(List.of(ConstantNode.of(i), n));
-                    });
-            case MultiplyNode mn -> simplifyMultiNode(
-                    mn,
-                    x -> x instanceof MultiplyNode,
-                    MultiplyNode::new,
-                    (a, b) -> {
-                        final BigInteger d1 = ((ConstantNode) a.denominator()).value();
-                        final BigInteger d2 = ((ConstantNode) b.denominator()).value();
-                        final BigInteger d = d1.multiply(d2);
-                        final BigInteger n1 = ((ConstantNode) a.numerator()).value();
-                        final BigInteger n2 = ((ConstantNode) b.numerator()).value();
-                        final BigInteger n = n1.multiply(n2);
-                        return new FractionNode(new ConstantNode(n), new ConstantNode(d));
-                    },
-                    (n, i) -> {
-                        return new PowerNode(n, ConstantNode.of(i));
-                    });
+            case PlusNode pn ->
+                simplifyMultiNode(
+                        pn,
+                        x -> x instanceof PlusNode,
+                        PlusNode::new,
+                        (a, b) -> {
+                            final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                            final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                            final BigInteger d = d1.multiply(d2);
+                            final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                            final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                            final BigInteger n = n1.multiply(d2).add(n2.multiply(d1));
+                            return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+                        },
+                        (n, i) -> {
+                            return new MultiplyNode(List.of(ConstantNode.of(i), n));
+                        });
+            case MultiplyNode mn ->
+                simplifyMultiNode(
+                        mn,
+                        x -> x instanceof MultiplyNode,
+                        MultiplyNode::new,
+                        (a, b) -> {
+                            final BigInteger d1 = ((ConstantNode) a.denominator()).value();
+                            final BigInteger d2 = ((ConstantNode) b.denominator()).value();
+                            final BigInteger d = d1.multiply(d2);
+                            final BigInteger n1 = ((ConstantNode) a.numerator()).value();
+                            final BigInteger n2 = ((ConstantNode) b.numerator()).value();
+                            final BigInteger n = n1.multiply(n2);
+                            return new FractionNode(new ConstantNode(n), new ConstantNode(d));
+                        },
+                        (n, i) -> {
+                            return new PowerNode(n, ConstantNode.of(i));
+                        });
             case FractionNode fn -> {
                 if (fn.denominator() instanceof ConstantNode cn && cn.value().compareTo(BigInteger.ONE) == 0) {
                     yield fn.numerator();
