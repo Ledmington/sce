@@ -19,11 +19,11 @@ package com.ledmington.sce.nodes;
 
 public interface Node {
 
-    boolean isConstant();
+	boolean isConstant();
 
-    int size();
+	int size();
 
-    String toExpression();
+	String toExpression();
 
-    String toLatex();
+	String toLatex();
 }

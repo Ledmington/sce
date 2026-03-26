@@ -35,33 +35,33 @@ import com.ledmington.sce.tokens.Tokenizer;
 
 final class TestTokenizer {
 
-    private static Stream<Arguments> correctTokens() {
-        return Stream.of(
-                Arguments.of("(", Symbols.LEFT_BRACKET),
-                Arguments.of(")", Symbols.RIGHT_BRACKET),
-                Arguments.of("+", Symbols.PLUS),
-                Arguments.of("-", Symbols.MINUS),
-                Arguments.of("*", Symbols.ASTERISK),
-                Arguments.of("/", Symbols.SLASH),
-                Arguments.of("^", Symbols.CARET),
-                Arguments.of("0", new IntegerLiteral(BigInteger.ZERO)),
-                Arguments.of("1", new IntegerLiteral(BigInteger.ONE)),
-                Arguments.of("2", new IntegerLiteral(BigInteger.TWO)),
-                Arguments.of("10", new IntegerLiteral(BigInteger.TEN)),
-                Arguments.of("x", new Name("x")),
-                Arguments.of("x1", new Name("x1")),
-                Arguments.of("x_1", new Name("x_1")),
-                Arguments.of("x1a", new Name("x1a")));
-    }
+	private static Stream<Arguments> correctTokens() {
+		return Stream.of(
+				Arguments.of("(", Symbols.LEFT_BRACKET),
+				Arguments.of(")", Symbols.RIGHT_BRACKET),
+				Arguments.of("+", Symbols.PLUS),
+				Arguments.of("-", Symbols.MINUS),
+				Arguments.of("*", Symbols.ASTERISK),
+				Arguments.of("/", Symbols.SLASH),
+				Arguments.of("^", Symbols.CARET),
+				Arguments.of("0", new IntegerLiteral(BigInteger.ZERO)),
+				Arguments.of("1", new IntegerLiteral(BigInteger.ONE)),
+				Arguments.of("2", new IntegerLiteral(BigInteger.TWO)),
+				Arguments.of("10", new IntegerLiteral(BigInteger.TEN)),
+				Arguments.of("x", new Name("x")),
+				Arguments.of("x1", new Name("x1")),
+				Arguments.of("x_1", new Name("x_1")),
+				Arguments.of("x1a", new Name("x1a")));
+	}
 
-    @ParameterizedTest
-    @MethodSource("correctTokens")
-    void tokenizing(final String input, final Token t) {
-        final Token[] expected = new Token[] {t};
-        final Token[] actual = Tokenizer.tokenize(input);
-        assertArrayEquals(
-                expected,
-                actual,
-                () -> String.format("Expected '%s' but was '%s'", Arrays.toString(expected), Arrays.toString(actual)));
-    }
+	@ParameterizedTest
+	@MethodSource("correctTokens")
+	void tokenizing(final String input, final Token t) {
+		final Token[] expected = new Token[] {t};
+		final Token[] actual = Tokenizer.tokenize(input);
+		assertArrayEquals(
+				expected,
+				actual,
+				() -> String.format("Expected '%s' but was '%s'", Arrays.toString(expected), Arrays.toString(actual)));
+	}
 }

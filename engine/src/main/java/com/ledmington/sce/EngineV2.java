@@ -24,28 +24,28 @@ import com.ledmington.sce.nodes.Node;
 
 public final class EngineV2 {
 
-    private EngineV2() {}
+	private EngineV2() {}
 
-    private static Set<Move> getAvailableMoves(final Node root) {
-        return Set.of();
-    }
+	private static Set<Move> getAvailableMoves(final Node root) {
+		return Set.of();
+	}
 
-    public static Node simplify(final Node root) {
-        final Set<Move> moves = getAvailableMoves(root);
-        Move bestMove = null;
-        int bestScore = root.size();
-        for (final Move m : moves) {
-            if (m.score() < bestScore) {
-                bestScore = m.score();
-                bestMove = m;
-            }
-        }
+	public static Node simplify(final Node root) {
+		final Set<Move> moves = getAvailableMoves(root);
+		Move bestMove = null;
+		int bestScore = root.size();
+		for (final Move m : moves) {
+			if (m.score() < bestScore) {
+				bestScore = m.score();
+				bestMove = m;
+			}
+		}
 
-        if (bestMove == null) {
-            // no better move found
-            return root;
-        }
+		if (bestMove == null) {
+			// no better move found
+			return root;
+		}
 
-        return bestMove.apply(root);
-    }
+		return bestMove.apply(root);
+	}
 }

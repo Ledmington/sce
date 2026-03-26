@@ -24,19 +24,19 @@ import com.ledmington.sce.nodes.VariableNode;
 
 public final class EngineConstants {
 
-    private static String imaginaryUnit = "i";
+	private static String imaginaryUnit = "i";
 
-    public static void setImaginaryUnit(final String unit) {
-        Objects.requireNonNull(unit);
-        if (unit.isBlank() || unit.isEmpty()) {
-            throw new IllegalArgumentException("Invalid imaginary unit");
-        }
-        imaginaryUnit = unit;
-    }
+	public static void setImaginaryUnit(final String unit) {
+		Objects.requireNonNull(unit);
+		if (unit.isBlank() || unit.isEmpty()) {
+			throw new IllegalArgumentException("Invalid imaginary unit");
+		}
+		imaginaryUnit = unit;
+	}
 
-    public static Node getImaginaryUnit() {
-        return new VariableNode(imaginaryUnit);
-    }
+	public static Node getImaginaryUnit() {
+		return new VariableNode(imaginaryUnit);
+	}
 
-    private EngineConstants() {}
+	private EngineConstants() {}
 }

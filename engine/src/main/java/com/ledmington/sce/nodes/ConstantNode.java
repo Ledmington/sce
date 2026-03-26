@@ -20,27 +20,27 @@ package com.ledmington.sce.nodes;
 import java.math.BigInteger;
 
 public record ConstantNode(BigInteger value) implements Node {
-    public static ConstantNode of(final int value) {
-        return new ConstantNode(BigInteger.valueOf(value));
-    }
+	public static ConstantNode of(final int value) {
+		return new ConstantNode(BigInteger.valueOf(value));
+	}
 
-    @Override
-    public boolean isConstant() {
-        return true;
-    }
+	@Override
+	public boolean isConstant() {
+		return true;
+	}
 
-    @Override
-    public int size() {
-        return 1;
-    }
+	@Override
+	public int size() {
+		return 1;
+	}
 
-    @Override
-    public String toExpression() {
-        return value.toString();
-    }
+	@Override
+	public String toExpression() {
+		return value.toString();
+	}
 
-    @Override
-    public String toLatex() {
-        return value.toString();
-    }
+	@Override
+	public String toLatex() {
+		return value.toString();
+	}
 }

@@ -38,30 +38,30 @@ import com.ledmington.sce.tokens.Tokenizer;
 
 final class TestParser {
 
-    private static Stream<Arguments> correctNodes() {
-        final ConstantNode one = ConstantNode.of(1);
-        final ConstantNode two = ConstantNode.of(2);
-        final VariableNode x = new VariableNode("x");
-        return Stream.of(
-                Arguments.of("1", ConstantNode.of(1)),
-                Arguments.of("-1", ConstantNode.of(-1)),
-                Arguments.of("(1)", new BracketNode(one)),
-                Arguments.of("1+2", new PlusNode(one, two)),
-                Arguments.of("1-2", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), two))),
-                Arguments.of("1*2", new MultiplyNode(one, two)),
-                Arguments.of("1/2", FractionNode.of(1, 2)),
-                Arguments.of("1^2", PowerNode.of(1, 2)),
-                Arguments.of("1+x", new PlusNode(one, x)),
-                Arguments.of("1-x", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), x))),
-                Arguments.of("1*x", new MultiplyNode(one, x)),
-                Arguments.of("1/x", new FractionNode(one, x)),
-                Arguments.of("1^x", new PowerNode(one, x)));
-    }
+	private static Stream<Arguments> correctNodes() {
+		final ConstantNode one = ConstantNode.of(1);
+		final ConstantNode two = ConstantNode.of(2);
+		final VariableNode x = new VariableNode("x");
+		return Stream.of(
+				Arguments.of("1", ConstantNode.of(1)),
+				Arguments.of("-1", ConstantNode.of(-1)),
+				Arguments.of("(1)", new BracketNode(one)),
+				Arguments.of("1+2", new PlusNode(one, two)),
+				Arguments.of("1-2", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), two))),
+				Arguments.of("1*2", new MultiplyNode(one, two)),
+				Arguments.of("1/2", FractionNode.of(1, 2)),
+				Arguments.of("1^2", PowerNode.of(1, 2)),
+				Arguments.of("1+x", new PlusNode(one, x)),
+				Arguments.of("1-x", new PlusNode(one, new MultiplyNode(ConstantNode.of(-1), x))),
+				Arguments.of("1*x", new MultiplyNode(one, x)),
+				Arguments.of("1/x", new FractionNode(one, x)),
+				Arguments.of("1^x", new PowerNode(one, x)));
+	}
 
-    @ParameterizedTest
-    @MethodSource("correctNodes")
-    void parsing(final String input, final Node expected) {
-        final Node actual = Parser.parse(Tokenizer.tokenize(input));
-        assertEquals(expected, actual, () -> String.format("Expected '%s' but was '%s'", expected, actual));
-    }
+	@ParameterizedTest
+	@MethodSource("correctNodes")
+	void parsing(final String input, final Node expected) {
+		final Node actual = Parser.parse(Tokenizer.tokenize(input));
+		assertEquals(expected, actual, () -> String.format("Expected '%s' but was '%s'", expected, actual));
+	}
 }

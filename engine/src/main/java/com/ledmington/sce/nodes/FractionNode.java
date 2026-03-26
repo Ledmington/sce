@@ -18,37 +18,37 @@
 package com.ledmington.sce.nodes;
 
 public record FractionNode(Node numerator, Node denominator) implements Node {
-    public static FractionNode of(final int constant) {
-        return new FractionNode(ConstantNode.of(constant), ConstantNode.of(1));
-    }
+	public static FractionNode of(final int constant) {
+		return new FractionNode(ConstantNode.of(constant), ConstantNode.of(1));
+	}
 
-    public static FractionNode of(final int numerator, final int denominator) {
-        return new FractionNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
-    }
+	public static FractionNode of(final int numerator, final int denominator) {
+		return new FractionNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
+	}
 
-    @Override
-    public boolean isConstant() {
-        return numerator.isConstant() && denominator.isConstant();
-    }
+	@Override
+	public boolean isConstant() {
+		return numerator.isConstant() && denominator.isConstant();
+	}
 
-    @Override
-    public int size() {
-        return 1 + numerator.size() + denominator.size();
-    }
+	@Override
+	public int size() {
+		return 1 + numerator.size() + denominator.size();
+	}
 
-    @Override
-    public String toExpression() {
-        return ((numerator instanceof ConstantNode || numerator instanceof VariableNode)
-                        ? numerator.toExpression()
-                        : ("(" + numerator.toExpression() + ")"))
-                + "/"
-                + ((denominator instanceof ConstantNode || denominator instanceof VariableNode)
-                        ? denominator.toExpression()
-                        : ("(" + denominator.toExpression() + ")"));
-    }
+	@Override
+	public String toExpression() {
+		return ((numerator instanceof ConstantNode || numerator instanceof VariableNode)
+						? numerator.toExpression()
+						: ("(" + numerator.toExpression() + ")"))
+				+ "/"
+				+ ((denominator instanceof ConstantNode || denominator instanceof VariableNode)
+						? denominator.toExpression()
+						: ("(" + denominator.toExpression() + ")"));
+	}
 
-    @Override
-    public String toLatex() {
-        return "\\frac{" + numerator.toLatex() + "}{" + denominator.toLatex() + "}";
-    }
+	@Override
+	public String toLatex() {
+		return "\\frac{" + numerator.toLatex() + "}{" + denominator.toLatex() + "}";
+	}
 }

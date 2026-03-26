@@ -18,23 +18,23 @@
 package com.ledmington.sce.nodes;
 
 public record BracketNode(Node inner) implements Node {
-    @Override
-    public boolean isConstant() {
-        return inner.isConstant();
-    }
+	@Override
+	public boolean isConstant() {
+		return inner.isConstant();
+	}
 
-    @Override
-    public int size() {
-        return 1 + inner.size();
-    }
+	@Override
+	public int size() {
+		return 1 + inner.size();
+	}
 
-    @Override
-    public String toExpression() {
-        return "(" + inner.toExpression() + ")";
-    }
+	@Override
+	public String toExpression() {
+		return "(" + inner.toExpression() + ")";
+	}
 
-    @Override
-    public String toLatex() {
-        return "(" + inner.toLatex() + ")";
-    }
+	@Override
+	public String toLatex() {
+		return "(" + inner.toLatex() + ")";
+	}
 }

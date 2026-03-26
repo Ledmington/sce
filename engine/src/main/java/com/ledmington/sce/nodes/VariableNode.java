@@ -18,23 +18,23 @@
 package com.ledmington.sce.nodes;
 
 public record VariableNode(String name) implements Node {
-    @Override
-    public boolean isConstant() {
-        return false;
-    }
+	@Override
+	public boolean isConstant() {
+		return false;
+	}
 
-    @Override
-    public int size() {
-        return 1;
-    }
+	@Override
+	public int size() {
+		return 1;
+	}
 
-    @Override
-    public String toExpression() {
-        return name;
-    }
+	@Override
+	public String toExpression() {
+		return name;
+	}
 
-    @Override
-    public String toLatex() {
-        return name;
-    }
+	@Override
+	public String toLatex() {
+		return name;
+	}
 }

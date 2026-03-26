@@ -23,9 +23,9 @@ import com.ledmington.sce.nodes.Node;
 
 public record Move(int score) implements UnaryOperator<Node> {
 
-    @Override
-    public Node apply(final Node root) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'apply'");
-    }
+	@Override
+	public Node apply(final Node root) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'apply'");
+	}
 }

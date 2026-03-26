@@ -19,23 +19,23 @@ package com.ledmington.sce.nodes;
 
 public record EquationNode(Node lhs, Node rhs) implements Node {
 
-    @Override
-    public boolean isConstant() {
-        return lhs.isConstant() && rhs.isConstant();
-    }
+	@Override
+	public boolean isConstant() {
+		return lhs.isConstant() && rhs.isConstant();
+	}
 
-    @Override
-    public int size() {
-        return 1 + lhs.size() + rhs.size();
-    }
+	@Override
+	public int size() {
+		return 1 + lhs.size() + rhs.size();
+	}
 
-    @Override
-    public String toExpression() {
-        return lhs.toExpression() + "=" + rhs.toExpression();
-    }
+	@Override
+	public String toExpression() {
+		return lhs.toExpression() + "=" + rhs.toExpression();
+	}
 
-    @Override
-    public String toLatex() {
-        return lhs.toLatex() + "=" + rhs.toLatex();
-    }
+	@Override
+	public String toLatex() {
+		return lhs.toLatex() + "=" + rhs.toLatex();
+	}
 }

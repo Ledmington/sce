@@ -23,75 +23,75 @@ import java.util.List;
 
 public final class Tokenizer {
 
-    private static char[] v;
-    private static int i;
+	private static char[] v;
+	private static int i;
 
-    private Tokenizer() {}
+	private Tokenizer() {}
 
-    public static Token[] tokenize(final String input) {
-        final List<Token> tokens = new ArrayList<>();
-        v = input.toCharArray();
-        i = 0;
-        while (i < v.length) {
-            final char ch = v[i];
-            switch (ch) {
-                case '(' -> {
-                    tokens.add(Symbols.LEFT_BRACKET);
-                    i++;
-                }
-                case ')' -> {
-                    tokens.add(Symbols.RIGHT_BRACKET);
-                    i++;
-                }
-                case '+' -> {
-                    tokens.add(Symbols.PLUS);
-                    i++;
-                }
-                case '-' -> {
-                    tokens.add(Symbols.MINUS);
-                    i++;
-                }
-                case '*' -> {
-                    tokens.add(Symbols.ASTERISK);
-                    i++;
-                }
-                case '/' -> {
-                    tokens.add(Symbols.SLASH);
-                    i++;
-                }
-                case '^' -> {
-                    tokens.add(Symbols.CARET);
-                    i++;
-                }
-                default -> {
-                    if (Character.isDigit(ch)) {
-                        tokens.add(readIntegerLiteral());
-                    } else if (Character.isAlphabetic(ch)) {
-                        tokens.add(readName());
-                    } else {
-                        throw new Error(String.format("Unknown character '%c'", ch));
-                    }
-                }
-            }
-        }
-        return tokens.toArray(new Token[0]);
-    }
+	public static Token[] tokenize(final String input) {
+		final List<Token> tokens = new ArrayList<>();
+		v = input.toCharArray();
+		i = 0;
+		while (i < v.length) {
+			final char ch = v[i];
+			switch (ch) {
+				case '(' -> {
+					tokens.add(Symbols.LEFT_BRACKET);
+					i++;
+				}
+				case ')' -> {
+					tokens.add(Symbols.RIGHT_BRACKET);
+					i++;
+				}
+				case '+' -> {
+					tokens.add(Symbols.PLUS);
+					i++;
+				}
+				case '-' -> {
+					tokens.add(Symbols.MINUS);
+					i++;
+				}
+				case '*' -> {
+					tokens.add(Symbols.ASTERISK);
+					i++;
+				}
+				case '/' -> {
+					tokens.add(Symbols.SLASH);
+					i++;
+				}
+				case '^' -> {
+					tokens.add(Symbols.CARET);
+					i++;
+				}
+				default -> {
+					if (Character.isDigit(ch)) {
+						tokens.add(readIntegerLiteral());
+					} else if (Character.isAlphabetic(ch)) {
+						tokens.add(readName());
+					} else {
+						throw new Error(String.format("Unknown character '%c'", ch));
+					}
+				}
+			}
+		}
+		return tokens.toArray(new Token[0]);
+	}
 
-    private static IntegerLiteral readIntegerLiteral() {
-        final StringBuilder sb = new StringBuilder(10);
-        while (i < v.length && Character.isDigit(v[i])) {
-            sb.append(v[i]);
-            i++;
-        }
-        return new IntegerLiteral(new BigInteger(sb.toString(), 10));
-    }
+	private static IntegerLiteral readIntegerLiteral() {
+		final StringBuilder sb = new StringBuilder(10);
+		while (i < v.length && Character.isDigit(v[i])) {
+			sb.append(v[i]);
+			i++;
+		}
+		return new IntegerLiteral(new BigInteger(sb.toString(), 10));
+	}
 
-    private static Name readName() {
-        final StringBuilder sb = new StringBuilder();
-        while (i < v.length && (Character.isAlphabetic(v[i]) || Character.isDigit(v[i]) || v[i] == '_')) {
-            sb.append(v[i]);
-            i++;
-        }
-        return new Name(sb.toString());
-    }
+	private static Name readName() {
+		final StringBuilder sb = new StringBuilder();
+		while (i < v.length && (Character.isAlphabetic(v[i]) || Character.isDigit(v[i]) || v[i] == '_')) {
+			sb.append(v[i]);
+			i++;
+		}
+		return new Name(sb.toString());
+	}
 }

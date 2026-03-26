@@ -30,92 +30,92 @@ import com.ledmington.sce.tokens.Token;
 
 public final class Parser {
 
-    private Parser() {}
+	private Parser() {}
 
-    public static Node parse(final Token... input) {
-        final List<Object> partialAST = new ArrayList<>(Arrays.asList(input));
+	public static Node parse(final Token... input) {
+		final List<Object> partialAST = new ArrayList<>(Arrays.asList(input));
 
-        // Convert all IntegerLiterals into ConstantNodes (maybe merge those classes?)
-        for (int i = 0; i < partialAST.size(); i++) {
-            if (partialAST.get(i) instanceof IntegerLiteral il) {
-                partialAST.set(i, new ConstantNode(il.value()));
-            } else if (partialAST.get(i) instanceof Name n) {
-                partialAST.set(i, new VariableNode(n.name()));
-            }
-        }
+		// Convert all IntegerLiterals into ConstantNodes (maybe merge those classes?)
+		for (int i = 0; i < partialAST.size(); i++) {
+			if (partialAST.get(i) instanceof IntegerLiteral il) {
+				partialAST.set(i, new ConstantNode(il.value()));
+			} else if (partialAST.get(i) instanceof Name n) {
+				partialAST.set(i, new VariableNode(n.name()));
+			}
+		}
 
-        while (partialAST.size() > 1) {
-            final int startSize = partialAST.size();
+		while (partialAST.size() > 1) {
+			final int startSize = partialAST.size();
 
-            // Convert all multiplications and divisions first
-            for (int i = 0; i < partialAST.size(); i++) {
-                if (i < partialAST.size() - 2
-                        && partialAST.get(i) instanceof Node ln
-                        && partialAST.get(i + 1) == Symbols.ASTERISK
-                        && partialAST.get(i + 2) instanceof Node rn) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new MultiplyNode(ln, rn));
-                } else if (i < partialAST.size() - 2
-                        && partialAST.get(i) instanceof Node ln
-                        && partialAST.get(i + 1) == Symbols.SLASH
-                        && partialAST.get(i + 2) instanceof Node rn) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new FractionNode(ln, rn));
-                } else if (i < partialAST.size() - 2
-                        && partialAST.get(i) instanceof Node ln
-                        && partialAST.get(i + 1) == Symbols.CARET
-                        && partialAST.get(i + 2) instanceof Node rn) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new PowerNode(ln, rn));
-                }
-            }
+			// Convert all multiplications and divisions first
+			for (int i = 0; i < partialAST.size(); i++) {
+				if (i < partialAST.size() - 2
+						&& partialAST.get(i) instanceof Node ln
+						&& partialAST.get(i + 1) == Symbols.ASTERISK
+						&& partialAST.get(i + 2) instanceof Node rn) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new MultiplyNode(ln, rn));
+				} else if (i < partialAST.size() - 2
+						&& partialAST.get(i) instanceof Node ln
+						&& partialAST.get(i + 1) == Symbols.SLASH
+						&& partialAST.get(i + 2) instanceof Node rn) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new FractionNode(ln, rn));
+				} else if (i < partialAST.size() - 2
+						&& partialAST.get(i) instanceof Node ln
+						&& partialAST.get(i + 1) == Symbols.CARET
+						&& partialAST.get(i + 2) instanceof Node rn) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new PowerNode(ln, rn));
+				}
+			}
 
-            // then convert all the other stuff
-            for (int i = 0; i < partialAST.size(); i++) {
-                if (i < partialAST.size() - 2
-                        && partialAST.get(i) instanceof Node ln
-                        && partialAST.get(i + 1) == Symbols.PLUS
-                        && partialAST.get(i + 2) instanceof Node rn) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new PlusNode(ln, rn));
-                }
-                if (i < partialAST.size() - 2
-                        && partialAST.get(i) instanceof Node ln
-                        && partialAST.get(i + 1) == Symbols.MINUS
-                        && partialAST.get(i + 2) instanceof Node rn) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new PlusNode(ln, new MultiplyNode(ConstantNode.of(-1), rn)));
-                }
-                if (i < partialAST.size() - 2
-                        && partialAST.get(i) == Symbols.LEFT_BRACKET
-                        && partialAST.get(i + 1) instanceof Node n
-                        && partialAST.get(i + 2) == Symbols.RIGHT_BRACKET) {
-                    partialAST.remove(i);
-                    partialAST.remove(i);
-                    partialAST.set(i, new BracketNode(n));
-                }
-                if (i < partialAST.size() - 1
-                        && partialAST.get(i) == Symbols.MINUS
-                        && partialAST.get(i + 1) instanceof ConstantNode cn) {
-                    partialAST.remove(i);
-                    partialAST.set(i, new ConstantNode(cn.value().multiply(new BigInteger("-1"))));
-                }
-            }
+			// then convert all the other stuff
+			for (int i = 0; i < partialAST.size(); i++) {
+				if (i < partialAST.size() - 2
+						&& partialAST.get(i) instanceof Node ln
+						&& partialAST.get(i + 1) == Symbols.PLUS
+						&& partialAST.get(i + 2) instanceof Node rn) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new PlusNode(ln, rn));
+				}
+				if (i < partialAST.size() - 2
+						&& partialAST.get(i) instanceof Node ln
+						&& partialAST.get(i + 1) == Symbols.MINUS
+						&& partialAST.get(i + 2) instanceof Node rn) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new PlusNode(ln, new MultiplyNode(ConstantNode.of(-1), rn)));
+				}
+				if (i < partialAST.size() - 2
+						&& partialAST.get(i) == Symbols.LEFT_BRACKET
+						&& partialAST.get(i + 1) instanceof Node n
+						&& partialAST.get(i + 2) == Symbols.RIGHT_BRACKET) {
+					partialAST.remove(i);
+					partialAST.remove(i);
+					partialAST.set(i, new BracketNode(n));
+				}
+				if (i < partialAST.size() - 1
+						&& partialAST.get(i) == Symbols.MINUS
+						&& partialAST.get(i + 1) instanceof ConstantNode cn) {
+					partialAST.remove(i);
+					partialAST.set(i, new ConstantNode(cn.value().multiply(new BigInteger("-1"))));
+				}
+			}
 
-            if (partialAST.size() == startSize) {
-                throw new Error(String.format(
-                        "Invalid expression: '%s'",
-                        partialAST.stream()
-                                .map(x -> (x instanceof Node n) ? n.toExpression() : x.toString())
-                                .collect(Collectors.joining(" "))));
-            }
-        }
+			if (partialAST.size() == startSize) {
+				throw new Error(String.format(
+						"Invalid expression: '%s'",
+						partialAST.stream()
+								.map(x -> (x instanceof Node n) ? n.toExpression() : x.toString())
+								.collect(Collectors.joining(" "))));
+			}
+		}
 
-        return (Node) partialAST.getFirst();
-    }
+		return (Node) partialAST.getFirst();
+	}
 }

@@ -34,62 +34,62 @@ import com.ledmington.sce.tokens.Tokenizer;
 
 public final class Main {
 
-    private static final PrintWriter out = System.console() == null
-            ? new PrintWriter(System.out, false, StandardCharsets.UTF_8)
-            : System.console().writer();
+	private static final PrintWriter out = System.console() == null
+			? new PrintWriter(System.out, false, StandardCharsets.UTF_8)
+			: System.console().writer();
 
-    public static void main(final String[] args) {
+	public static void main(final String[] args) {
 
-        final String shortHelpFlag = "-h";
-        final String longHelpFlag = "--help";
-        final String imaginaryUnitFlag = "--imaginary-unit";
+		final String shortHelpFlag = "-h";
+		final String longHelpFlag = "--help";
+		final String imaginaryUnitFlag = "--imaginary-unit";
 
-        int i = 0;
-        for (; i < args.length; i++) {
-            if (shortHelpFlag.equals(args[i]) || longHelpFlag.equals(args[i])) {
-                System.out.println("""
+		int i = 0;
+		for (; i < args.length; i++) {
+			if (shortHelpFlag.equals(args[i]) || longHelpFlag.equals(args[i])) {
+				System.out.println("""
 
-                                sce - Symbolic Calculus Engine
+								sce - Symbolic Calculus Engine
 
-                                Usage: sce '(1/2)*(3-4)^2'
+								Usage: sce '(1/2)*(3-4)^2'
 
-                                Flags:
-                                 -h, --help          Print this help message and exits.
-                                 --imaginary-unit=X  Uses X as the imaginary unit. Default: "i".
+								Flags:
+								-h, --help          Print this help message and exits.
+								--imaginary-unit=X  Uses X as the imaginary unit. Default: "i".
 
-                                """);
-                System.exit(0);
-            } else if (args[i].startsWith(imaginaryUnitFlag)) {
-                EngineConstants.setImaginaryUnit(args[i].split("=")[1]);
-            } else {
-                break;
-            }
-        }
+								""");
+				System.exit(0);
+			} else if (args[i].startsWith(imaginaryUnitFlag)) {
+				EngineConstants.setImaginaryUnit(args[i].split("=")[1]);
+			} else {
+				break;
+			}
+		}
 
-        final String input = String.join(" ", Arrays.copyOfRange(args, i, args.length));
-        final Token[] tokens = Tokenizer.tokenize(input);
-        Node current = Parser.parse(tokens);
-        out.printf("Input: %s%n", current.toExpression());
-        Node next = Engine.simplify(current);
+		final String input = String.join(" ", Arrays.copyOfRange(args, i, args.length));
+		final Token[] tokens = Tokenizer.tokenize(input);
+		Node current = Parser.parse(tokens);
+		out.printf("Input: %s%n", current.toExpression());
+		Node next = Engine.simplify(current);
 
-        int iteration = 0;
-        while (!current.equals(next)) {
-            out.printf(" %2d: %s%n", iteration, next.toExpression());
-            current = next;
-            next = Engine.simplify(current);
-            iteration++;
-        }
+		int iteration = 0;
+		while (!current.equals(next)) {
+			out.printf(" %2d: %s%n", iteration, next.toExpression());
+			current = next;
+			next = Engine.simplify(current);
+			iteration++;
+		}
 
-        out.printf("Final result: %s%n", next.toExpression());
-        if (next instanceof FractionNode fn
-                && fn.numerator() instanceof ConstantNode num
-                && fn.denominator() instanceof ConstantNode den) {
-            out.printf(
-                    "Value: %.20f%n",
-                    new BigDecimal(num.value()).divide(new BigDecimal(den.value()), new MathContext(20)));
-        }
-        out.printf("Final result (LaTeX): %s%n", next.toLatex());
+		out.printf("Final result: %s%n", next.toExpression());
+		if (next instanceof FractionNode fn
+				&& fn.numerator() instanceof ConstantNode num
+				&& fn.denominator() instanceof ConstantNode den) {
+			out.printf(
+					"Value: %.20f%n",
+					new BigDecimal(num.value()).divide(new BigDecimal(den.value()), new MathContext(20)));
+		}
+		out.printf("Final result (LaTeX): %s%n", next.toLatex());
 
-        out.flush();
-    }
+		out.flush();
+	}
 }
