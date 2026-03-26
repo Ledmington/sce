@@ -2,10 +2,9 @@ plugins {
     id 'java'
     id 'jacoco'
     id 'pmd'
-    id 'com.github.spotbugs' version "6.0.22"
     id 'com.adarshr.test-logger' version '4.0.0'
-    id 'com.diffplug.spotless' version '8.4.0'
-    id 'com.github.ben-manes.versions' version '0.53.0'
+    id 'com.diffplug.spotless' version '7.0.4'
+    id 'com.github.ben-manes.versions' version '0.52.0'
     id 'de.undercouch.download' version '5.6.0'
 }
 
@@ -15,6 +14,7 @@ static def path(String... args) {
 
 // Tunables
 ext.basePackage = 'com.ledmington'
+def version = '0.1.0'
 String appDescription = 'Symbolic Calculus Engine'
 String author = 'Filippo Barbari'
 String authorMail = 'filippo.barbari@gmail.com'
@@ -23,6 +23,8 @@ ext.appNameLowerCase = appName.toLowerCase(Locale.US)
 
 ext.junitVersion = '6.0.1'
 ext.junitLauncherVersion = '6.0.1'
+ext.jacocoVersion = '0.8.14'
+ext.pmdVersion = '7.13.0'
 ext.palantirVersion = '2.89.0'
 // End tunables
 
@@ -30,7 +32,6 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'pmd'
-    apply plugin: 'com.github.spotbugs'
     apply plugin: 'com.adarshr.test-logger'
     apply plugin: 'com.github.ben-manes.versions'
 
@@ -80,12 +81,12 @@ allprojects {
     }
 
     jacoco {
-        toolVersion = "0.8.12"
+        toolVersion = "${jacocoVersion}"
         reportsDirectory = layout.buildDirectory.dir('jacoco')
     }
 
     testlogger {
-        theme = 'standard'
+        theme = 'standard-parallel'
 
         showExceptions = true
         showStackTraces = true
@@ -96,7 +97,7 @@ allprojects {
 
         showSummary = true
         showSimpleNames = false
-        showPassed = false
+        showPassed = false // enable for verbose tests
         showSkipped = true
         showFailed = true
         showOnlySlow = false
@@ -109,33 +110,20 @@ allprojects {
         logLevel = 'lifecycle'
     }
 
+    // Common config for all PMD tasks
     pmd {
+        toolVersion = "${pmdVersion}"
+        ignoreFailures = false
         consoleOutput = true
-        toolVersion = "7.1.0"
         rulesMinimumPriority = 5
-        threads = 1
+        threads = 1 // Each PMD instance for each module runs serially
         incrementalAnalysis = true
-        ruleSetConfig = resources.text.fromFile(path("${project.rootDir}", "ruleset.xml"))
-    }
-
-    spotbugs {
-        toolVersion = '4.8.6'
     }
 
     // cleanup tasks
-    clean.dependsOn('cleanDLLs', 'cleanDyLibs', 'cleanLogs', 'cleanSOs', 'cleanBin')
-    tasks.register('cleanDLLs', Delete) {
-        delete fileTree(dir: project.projectDir, include: '*.dll')
-    }
-    tasks.register('cleanDyLibs', Delete) {
-        delete fileTree(dir: project.projectDir, include: '*.dylib')
-    }
-    tasks.register('cleanLogs', Delete) {
-        delete fileTree(dir: project.projectDir, include: 'hs_err_pid*.log')
-    }
-    tasks.register('cleanSOs', Delete) {
-        delete fileTree(dir: project.projectDir, include: '*.so')
-    }
+    clean.dependsOn('cleanBin')
+
+    // remove default VSCode build directory
     tasks.register('cleanBin', Delete) {
         delete "${project.projectDir}/bin"
     }
@@ -145,25 +133,27 @@ spotless {
     format 'misc', {
         target '*.md', '.gitignore', '.gitattributes'
         trimTrailingWhitespace()
-        indentWithTabs()
+        leadingSpacesToTabs()
         endWithNewline()
         setEncoding('utf-8')
     }
 
     java {
         target fileTree('.') {
-            include path('**', '*.java')
+            include path('engine', '**', '*.java')
+            include path('cli', '**', '*.java')
             exclude path('**', 'build', '**'), path('**', 'build-*', '**'), path('**', 'bin', '**')
         }
+        setEncoding('utf-8')
         removeUnusedImports()
+        palantirJavaFormat("${palantirVersion}").formatJavadoc(true)
+        leadingSpacesToTabs()
         formatAnnotations()
         trimTrailingWhitespace()
         endWithNewline()
-        setEncoding('utf-8')
-        palantirJavaFormat("${palantirVersion}").formatJavadoc(true)
 
         // check https://javadoc.io/doc/com.diffplug.spotless/spotless-plugin-gradle/latest/com/diffplug/gradle/spotless/JavaExtension.html
-        importOrder('java', 'javax', 'javafx', 'org.junit', 'com', 'com.ledmington', 'org', group as String)
+        importOrder('java', 'javax', 'javafx', 'org.junit', 'org.openjdk', 'com', 'com.ledmington', 'org', group as String)
 
         licenseHeader String.join("\n",
                 "/*",
