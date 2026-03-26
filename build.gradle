@@ -21,7 +21,8 @@ String authorMail = 'filippo.barbari@gmail.com'
 String appName = 'sce'
 ext.appNameLowerCase = appName.toLowerCase(Locale.US)
 
-ext.junitVersion = "5.11.0"
+ext.junitVersion = '6.0.1'
+ext.junitLauncherVersion = '6.0.1'
 ext.palantirVersion = '2.89.0'
 // End tunables
 
@@ -47,6 +48,7 @@ allprojects {
         testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
         testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:${junitLauncherVersion}"
     }
 
     tasks.withType(JavaCompile).configureEach {
