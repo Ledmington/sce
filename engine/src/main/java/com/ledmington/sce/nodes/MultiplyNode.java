@@ -24,10 +24,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/** A node representing the product of multiple expressions. */
 public final class MultiplyNode implements MultiNode {
 
 	private final Map<Node, Integer> children;
 
+	/**
+	 * Creates a new MultiplyNode with the given factors.
+	 *
+	 * @param nodes The factors of the product.
+	 */
 	public MultiplyNode(final Node... nodes) {
 		this.children = new HashMap<>();
 		for (final Node n : nodes) {
@@ -40,6 +46,11 @@ public final class MultiplyNode implements MultiNode {
 		}
 	}
 
+	/**
+	 * Creates a new MultiplyNode with the given factors.
+	 *
+	 * @param nodes The factors of the product.
+	 */
 	public MultiplyNode(final List<Node> nodes) {
 		this.children = new HashMap<>();
 		for (final Node n : nodes) {

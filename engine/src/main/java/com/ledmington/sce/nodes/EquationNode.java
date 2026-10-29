@@ -17,6 +17,12 @@
  */
 package com.ledmington.sce.nodes;
 
+/**
+ * A node representing an equation between two expressions.
+ *
+ * @param lhs The left-hand side of the equation.
+ * @param rhs The right-hand side of the equation.
+ */
 public record EquationNode(Node lhs, Node rhs) implements Node {
 
 	@Override

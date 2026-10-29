@@ -20,9 +20,25 @@ package com.ledmington.sce.nodes;
 /** A Node which can have multiple children nodes with commutativity. */
 public interface MultiNode extends Node {
 
+	/**
+	 * Returns the identity element of the operation represented by this node.
+	 *
+	 * @return The identity element.
+	 */
 	ConstantNode identity();
 
+	/**
+	 * Returns the number of children of this node, counting duplicates.
+	 *
+	 * @return The number of children.
+	 */
 	int getNumChildren();
 
+	/**
+	 * Returns the child at the given index.
+	 *
+	 * @param idx The index of the child.
+	 * @return The child at the given index.
+	 */
 	Node getChild(final int idx);
 }

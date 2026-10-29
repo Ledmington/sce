@@ -38,6 +38,7 @@ import com.ledmington.sce.nodes.PlusNode;
 import com.ledmington.sce.nodes.PowerNode;
 import com.ledmington.sce.nodes.VariableNode;
 
+/** The engine to simplify expressions. */
 public final class Engine {
 
 	private Engine() {}
@@ -204,6 +205,12 @@ public final class Engine {
 		return constructor.apply(nodes);
 	}
 
+	/**
+	 * Simplifies the given expression.
+	 *
+	 * @param root The root of the expression to simplify.
+	 * @return The simplified expression.
+	 */
 	public static Node simplify(final Node root) {
 		return switch (root) {
 			case BracketNode bn -> {

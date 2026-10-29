@@ -17,11 +17,30 @@
  */
 package com.ledmington.sce.nodes;
 
+/**
+ * A node representing a fraction between two expressions.
+ *
+ * @param numerator The numerator of the fraction.
+ * @param denominator The denominator of the fraction.
+ */
 public record FractionNode(Node numerator, Node denominator) implements Node {
+	/**
+	 * Creates a new FractionNode representing the given integer, with a denominator of 1.
+	 *
+	 * @param constant The numerator of the fraction.
+	 * @return A new FractionNode.
+	 */
 	public static FractionNode of(final int constant) {
 		return new FractionNode(ConstantNode.of(constant), ConstantNode.of(1));
 	}
 
+	/**
+	 * Creates a new FractionNode with the given constant numerator and denominator.
+	 *
+	 * @param numerator The numerator of the fraction.
+	 * @param denominator The denominator of the fraction.
+	 * @return A new FractionNode.
+	 */
 	public static FractionNode of(final int numerator, final int denominator) {
 		return new FractionNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
 	}

@@ -24,10 +24,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/** A node representing the sum of multiple expressions. */
 public final class PlusNode implements MultiNode {
 
 	private final Map<Node, Integer> children;
 
+	/**
+	 * Creates a new PlusNode with the given addends.
+	 *
+	 * @param nodes The addends of the sum.
+	 */
 	public PlusNode(final Node... nodes) {
 		this.children = new HashMap<>();
 		for (final Node n : nodes) {
@@ -40,6 +46,11 @@ public final class PlusNode implements MultiNode {
 		}
 	}
 
+	/**
+	 * Creates a new PlusNode with the given addends.
+	 *
+	 * @param nodes The addends of the sum.
+	 */
 	public PlusNode(final List<Node> nodes) {
 		this.children = new HashMap<>();
 		for (final Node n : nodes) {

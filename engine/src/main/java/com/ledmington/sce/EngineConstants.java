@@ -22,10 +22,16 @@ import java.util.Objects;
 import com.ledmington.sce.nodes.Node;
 import com.ledmington.sce.nodes.VariableNode;
 
+/** Global constants used by the engine. */
 public final class EngineConstants {
 
 	private static String imaginaryUnit = "i";
 
+	/**
+	 * Sets the name of the imaginary unit.
+	 *
+	 * @param unit The new name of the imaginary unit.
+	 */
 	public static void setImaginaryUnit(final String unit) {
 		Objects.requireNonNull(unit);
 		if (unit.isBlank()) {
@@ -34,6 +40,11 @@ public final class EngineConstants {
 		imaginaryUnit = unit;
 	}
 
+	/**
+	 * Returns the imaginary unit as a variable.
+	 *
+	 * @return A new VariableNode representing the imaginary unit.
+	 */
 	public static Node getImaginaryUnit() {
 		return new VariableNode(imaginaryUnit);
 	}

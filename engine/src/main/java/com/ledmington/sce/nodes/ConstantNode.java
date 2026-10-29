@@ -19,7 +19,18 @@ package com.ledmington.sce.nodes;
 
 import java.math.BigInteger;
 
+/**
+ * A node representing an integer constant.
+ *
+ * @param value The value of the constant.
+ */
 public record ConstantNode(BigInteger value) implements Node {
+	/**
+	 * Creates a new ConstantNode with the given value.
+	 *
+	 * @param value The value of the constant.
+	 * @return A new ConstantNode.
+	 */
 	public static ConstantNode of(final int value) {
 		return new ConstantNode(BigInteger.valueOf(value));
 	}

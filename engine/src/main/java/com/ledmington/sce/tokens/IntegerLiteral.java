@@ -19,4 +19,9 @@ package com.ledmington.sce.tokens;
 
 import java.math.BigInteger;
 
+/**
+ * A token representing an integer literal.
+ *
+ * @param value The value of the literal.
+ */
 public record IntegerLiteral(BigInteger value) implements Token {}

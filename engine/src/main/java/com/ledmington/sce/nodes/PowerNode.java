@@ -17,11 +17,30 @@
  */
 package com.ledmington.sce.nodes;
 
+/**
+ * A node representing an exponentiation.
+ *
+ * @param base The base of the power.
+ * @param exponent The exponent of the power.
+ */
 public record PowerNode(Node base, Node exponent) implements Node {
+	/**
+	 * Creates a new PowerNode with the given constant base and an exponent of 1.
+	 *
+	 * @param constant The base of the power.
+	 * @return A new PowerNode.
+	 */
 	public static PowerNode of(final int constant) {
 		return new PowerNode(ConstantNode.of(constant), ConstantNode.of(1));
 	}
 
+	/**
+	 * Creates a new PowerNode with the given constant base and exponent.
+	 *
+	 * @param numerator The base of the power.
+	 * @param denominator The exponent of the power.
+	 * @return A new PowerNode.
+	 */
 	public static PowerNode of(final int numerator, final int denominator) {
 		return new PowerNode(ConstantNode.of(numerator), ConstantNode.of(denominator));
 	}

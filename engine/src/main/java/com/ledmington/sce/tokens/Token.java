@@ -17,4 +17,5 @@
  */
 package com.ledmington.sce.tokens;
 
+/** A single lexical unit of an expression. */
 public interface Token {}

@@ -17,6 +17,11 @@
  */
 package com.ledmington.sce.nodes;
 
+/**
+ * A node representing a variable.
+ *
+ * @param name The name of the variable.
+ */
 public record VariableNode(String name) implements Node {
 	@Override
 	public boolean isConstant() {

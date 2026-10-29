@@ -22,6 +22,7 @@ import java.util.Set;
 import com.ledmington.sce.engine.Move;
 import com.ledmington.sce.nodes.Node;
 
+/** The new engine to simplify expressions, based on choosing the best available move. */
 public final class EngineV2 {
 
 	private EngineV2() {}
@@ -30,6 +31,12 @@ public final class EngineV2 {
 		return Set.of();
 	}
 
+	/**
+	 * Simplifies the given expression.
+	 *
+	 * @param root The root of the expression to simplify.
+	 * @return The simplified expression.
+	 */
 	public static Node simplify(final Node root) {
 		final Set<Move> moves = getAvailableMoves(root);
 		Move bestMove = null;

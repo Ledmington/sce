@@ -21,6 +21,11 @@ import java.util.function.UnaryOperator;
 
 import com.ledmington.sce.nodes.Node;
 
+/**
+ * A transformation which can be applied to an abstract syntax tree.
+ *
+ * @param score The size of the tree after applying this move.
+ */
 public record Move(int score) implements UnaryOperator<Node> {
 
 	@Override

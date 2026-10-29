@@ -17,13 +17,34 @@
  */
 package com.ledmington.sce.nodes;
 
+/** A node of the abstract syntax tree of an expression. */
 public interface Node {
 
+	/**
+	 * Checks whether this node contains only constant values.
+	 *
+	 * @return True if this node is constant, false otherwise.
+	 */
 	boolean isConstant();
 
+	/**
+	 * Returns the number of nodes in the subtree rooted at this node.
+	 *
+	 * @return The size of this subtree.
+	 */
 	int size();
 
+	/**
+	 * Returns the plain-text representation of this node.
+	 *
+	 * @return The expression represented by this node.
+	 */
 	String toExpression();
 
+	/**
+	 * Returns the LaTeX representation of this node.
+	 *
+	 * @return The LaTeX code of this node.
+	 */
 	String toLatex();
 }

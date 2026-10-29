@@ -17,6 +17,7 @@
  */
 package com.ledmington.sce.tokens;
 
+/** The symbols recognized by the tokenizer. */
 public enum Symbols implements Token {
 
 	/** The symbol '('. */

@@ -17,4 +17,5 @@
  */
 package com.ledmington.sce.engine;
 
+/** An optimization which can be applied to an expression. */
 public record Optimization() {}

@@ -28,10 +28,17 @@ import com.ledmington.sce.tokens.Name;
 import com.ledmington.sce.tokens.Symbols;
 import com.ledmington.sce.tokens.Token;
 
+/** Converts a sequence of tokens into an abstract syntax tree. */
 public final class Parser {
 
 	private Parser() {}
 
+	/**
+	 * Parses the given tokens into an abstract syntax tree.
+	 *
+	 * @param input The tokens to be parsed.
+	 * @return The root of the resulting tree.
+	 */
 	public static Node parse(final Token... input) {
 		final List<Object> partialAST = new ArrayList<>(Arrays.asList(input));
 

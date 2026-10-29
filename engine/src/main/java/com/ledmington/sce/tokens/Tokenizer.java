@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Splits a string into a sequence of tokens. */
 public final class Tokenizer {
 
 	private static char[] v;
@@ -28,6 +29,12 @@ public final class Tokenizer {
 
 	private Tokenizer() {}
 
+	/**
+	 * Splits the given string into tokens.
+	 *
+	 * @param input The string to be tokenized.
+	 * @return The resulting tokens.
+	 */
 	public static Token[] tokenize(final String input) {
 		final List<Token> tokens = new ArrayList<>();
 		v = input.toCharArray();

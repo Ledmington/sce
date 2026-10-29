@@ -17,4 +17,9 @@
  */
 package com.ledmington.sce.tokens;
 
+/**
+ * A token representing a name, such as a variable.
+ *
+ * @param name The name.
+ */
 public record Name(String name) implements Token {}

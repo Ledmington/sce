@@ -17,6 +17,11 @@
  */
 package com.ledmington.sce.nodes;
 
+/**
+ * A node representing an expression enclosed in round brackets.
+ *
+ * @param inner The expression inside the brackets.
+ */
 public record BracketNode(Node inner) implements Node {
 	@Override
 	public boolean isConstant() {
