@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ledmington;
+package com.ledmington.cli;
 
 import java.io.PrintWriter;
 import java.math.BigDecimal;
@@ -57,7 +57,6 @@ public final class Main {
 								Flags:
 								-h, --help          Print this help message and exits.
 								--imaginary-unit=X  Uses X as the imaginary unit. Default: "i".
-
 								""");
 				System.exit(0);
 			} else if (args[i].startsWith(imaginaryUnitFlag)) {
